@@ -10,7 +10,9 @@ while getopts "d" opt; do
       BUILD_TYPE="Debug"
       ;;
     \? )
-      echo "Nieprawidłowa opcja: $OPTARG" 1>&2
+      echo "Nieprawidłowy argument, poprawne użycie:" 1>&2
+      echo " > debug:   ./build.sh -d" 1>&2
+      echo " > release: ./build.sh" 1>&2
       exit 1
       ;;
   esac
