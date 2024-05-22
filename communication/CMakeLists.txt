@@ -5,6 +5,11 @@ project(communication LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Ustawienie domyślnego typu budowania
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
 # Dodanie katalogu źródłowego
 add_subdirectory(src)
 
