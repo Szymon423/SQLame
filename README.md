@@ -36,25 +36,20 @@ I want data to be compressed, and encrypted.
 
 ## File system
 
-```plantuml
-@startuml
-folder data {
-  folder metadata {
-    folder tables {
-      file table_name.meta
-    }
-    folder indexes {
-      file index_name.meta
-    }
-  }
-  folder tables {
-    folder table_name {
-      file data.db
-      file index_name.idx
-    }
-  }
-  folder logs {
-    file log_0001.log
-  }
-}
-@enduml
+```plaintext
+data/ - główny katalog zawierający wszystkie dane bazy danych.
+│
+├── metadata/ - katalog zawierający pliki metadanych.
+│   ├── tables/ - katalog zawierający metadane dotyczące tabel.
+│   │   └── table_name.meta - plik metadanych dla konkretnej tabeli.
+│   └── indexes/ - katalog zawierający metadane dotyczące indeksów.
+│       └── index_name.meta - plik metadanych dla konkretnego indeksu.
+│
+├── tables/ - katalog zawierający dane tabel.
+│   └── table_name/ - katalog dla konkretnej tabeli.
+│       ├── data.db - plik danych przechowujący rzeczywiste rekordy tabeli.
+│       └── index_name.idx - plik indeksu dla konkretnej tabeli.
+│
+└── logs/ - katalog zawierający pliki logów transakcji.
+    └── log_0001.log - plik logu transakcji.
+```
