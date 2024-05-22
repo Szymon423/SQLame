@@ -18,6 +18,7 @@ while getopts "d" opt; do
   esac
 done
 
+echo "Building communication module in $BUILD_TYPE..."
 # Tworzenie odpowiedniego katalogu build
 BUILD_DIR="build/${BUILD_TYPE}"
 mkdir -p ${BUILD_DIR}

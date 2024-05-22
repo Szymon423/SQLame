@@ -1,5 +1,8 @@
 # Zbieranie wszystkich plików źródłowych w katalogu src
-file(GLOB SOURCES *.cpp)
+file(GLOB SOURCES 
+    *.cpp
+    *.hpp
+)
 
 # Dodanie plików źródłowych do biblioteki
 add_library(communication SHARED ${SOURCES})
