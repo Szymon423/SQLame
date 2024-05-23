@@ -1,8 +1,8 @@
 # Pobranie Google Test
 include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip
 )
 # Pobranie zawartości
 FetchContent_MakeAvailable(googletest)
@@ -14,7 +14,15 @@ file(GLOB TEST_SOURCES *.cpp)
 add_executable(runCommunicationTests ${TEST_SOURCES})
 
 # Połączenie z biblioteką GTest
-target_link_libraries(runCommunicationTests gtest gtest_main communication)
+target_link_libraries(runCommunicationTests 
+  gtest 
+  gtest_main 
+  communication
+)
+
+target_include_directories(runCommunicationTests PUBLIC 
+  ${CMAKE_SOURCE_DIR}/src
+)
 
 # Ustawienie flag kompilatora dla testów
 target_compile_options(runCommunicationTests PRIVATE -Wall -Wextra -Wpedantic)
