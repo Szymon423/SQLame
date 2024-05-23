@@ -13,9 +13,11 @@ endif()
 # Dodanie katalogu źródłowego
 add_subdirectory(src)
 
-# Dodanie katalogu testowego
-enable_testing()
-add_subdirectory(tests)
+# testy
+if(ENABLE_TESTS)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
 
 # Ustawienie katalogu wyjściowego dla bibliotek
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

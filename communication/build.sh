@@ -3,11 +3,17 @@
 # Domyślnie ustawienie trybu Release
 BUILD_TYPE="Release"
 
+# Enable testing
+ENABLE_TESTS=false
+
 # Sprawdzenie, czy podano flagę -d
-while getopts "d" opt; do
+while getopts ":dt" opt; do
   case ${opt} in
     d )
       BUILD_TYPE="Debug"
+      ;;
+    t )
+      ENABLE_TESTS=true
       ;;
     \? )
       echo "Nieprawidłowy argument, poprawne użycie:" 1>&2
@@ -25,7 +31,7 @@ mkdir -p ${BUILD_DIR}
 cd ${BUILD_DIR}
 
 # Uruchomienie CMake i kompilacja
-cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ../..
+cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DENABLE_TESTS=${ENABLE_TESTS} ../..
 make
 
 # Powrót do katalogu głównego
