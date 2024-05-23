@@ -1,0 +1,19 @@
+{
+    "base": "/SQLame",
+    "data": {
+        "metadata": {
+            "tables": {
+
+            },
+            "indexes": {
+
+            }
+        },
+        "tables": {
+
+        },
+        "logs": {
+            
+        }
+    }
+}

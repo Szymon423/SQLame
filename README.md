@@ -53,3 +53,10 @@ data/ - główny katalog zawierający wszystkie dane bazy danych.
 └── logs/ - katalog zawierający pliki logów transakcji.
     └── log_0001.log - plik logu transakcji.
 ```
+
+## Dependencies
+ - [nlohmann/json](https://github.com/nlohmann/json)
+ - [spdlog](https://github.com/gabime/spdlog)
+ - [POCO](https://pocoproject.org/)
+ - [zstd](https://github.com/facebook/zstd)
+ - [OpenSSL](https://github.com/openssl/openssl)
