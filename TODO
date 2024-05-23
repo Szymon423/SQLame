@@ -3,5 +3,5 @@
 [ ] prepare Core functionality module
 [ ] prepare Communication functionality module
 [ ] prepare Transactions functionality module
-[ ] prepare Compression and Encryption module
-[ ] prepare tests
+[x] prepare Compression and Encryption module
+[x] prepare tests
