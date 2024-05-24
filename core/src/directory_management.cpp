@@ -9,13 +9,12 @@ bool check_path_exist(fs::path path, CheckFor target) {
 }
 
 bool create_system_directories(fs::path file_path) {
-
 	std::ifstream json_file(file_path);
 
 	// Sprawdź, czy plik został otwarty poprawnie
 	if (!json_file.is_open()) {
-		std::cerr << "Nie można otworzyć pliku: " << file_path << std::endl;
-		return 1;
+		LOG_ERROR("Could not open {} with directories design.", std::string{file_path});
+		return false;
 	}
 
 	// Parsuj plik JSON do obiektu nlohmann::json
@@ -33,11 +32,11 @@ bool create_system_directories(fs::path file_path) {
 
 bool create_new_directory(fs::path dir_path) {
 	if (fs::create_directory(dir_path)) {
-		std::cout << "Folder: " << dir_path << " został pomyślnie utworzony" << std::endl;
+		LOG_TRACE("Created {} directory.", std::string{dir_path});
 		return true;
 	} 
 	else {
-		std::cerr << "Nie udało się utworzyć folderu: " << dir_path << std::endl;
+		LOG_ERROR("Could not create {} directory.", std::string{dir_path});
 		return false;
 	}
 
@@ -48,16 +47,12 @@ void iterate_through_directories(const json::json& j, fs::path path) {
         for (auto it = j.begin(); it != j.end(); ++it) {
 			std::string key = it.key();
 			fs::path new_path = path / fs::path{key};
-        	std::cout << new_path << std::endl;
 			if (!check_path_exist(new_path, CheckFor::DIRECTORY)) {
 				if (!create_new_directory(new_path)) {
-					std::cout << "Nie udało się utworzyć folderu.";
+					// tu coś zrób
 				}
 			}
             iterate_through_directories(it.value(), new_path);
         }
     } 
-	else {
-        std::cout << path << std::endl;
-    }
 }

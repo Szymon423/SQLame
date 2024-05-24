@@ -12,4 +12,5 @@ target_compile_options(core_lib PRIVATE -Wall -Wextra -Wpedantic)
 
 target_link_libraries(core_lib
     nlohmann_json::nlohmann_json
+    spdlog::spdlog
 )

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream> 
 #include <nlohmann/json.hpp>
+#include "log.hpp"
 
 namespace fs = std::filesystem;
 namespace json = nlohmann;

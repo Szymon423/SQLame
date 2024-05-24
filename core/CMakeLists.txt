@@ -14,6 +14,7 @@ project(compression_encryption LANGUAGES CXX)
 
 # Znajdź pakiet nlohmann_json
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 
 # Dodanie katalogu źródłowego
 add_subdirectory(src)
@@ -32,6 +33,7 @@ add_executable(SQLame main.cpp)
 # Połącz bibliotekę z projektem
 target_link_libraries(SQLame 
     nlohmann_json::nlohmann_json
+    spdlog::spdlog
 	core_lib
 )
 
