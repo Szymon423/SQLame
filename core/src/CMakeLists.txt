@@ -5,7 +5,11 @@ file(GLOB SOURCES
 )
 
 # Dodanie plików źródłowych do biblioteki
-add_library(core SHARED ${SOURCES})
+add_library(core_lib SHARED ${SOURCES})
 
 # Ustawienie flag kompilatora
-target_compile_options(core PRIVATE -Wall -Wextra -Wpedantic)
+target_compile_options(core_lib PRIVATE -Wall -Wextra -Wpedantic)
+
+target_link_libraries(core_lib
+    nlohmann_json::nlohmann_json
+)

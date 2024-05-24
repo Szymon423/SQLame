@@ -55,7 +55,7 @@ data/ - główny katalog zawierający wszystkie dane bazy danych.
 ```
 
 ## Dependencies
- - [nlohmann/json](https://github.com/nlohmann/json)
+ - [nlohmann/json 3.11.3](https://github.com/nlohmann/json)
  - [spdlog](https://github.com/gabime/spdlog)
  - [POCO](https://pocoproject.org/)
  - [zstd](https://github.com/facebook/zstd)
