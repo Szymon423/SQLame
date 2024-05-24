@@ -1,6 +1,8 @@
 #pragma once
 
 #include <filesystem>
+#include <iostream>
+#include <fstream> 
 #include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
@@ -19,6 +21,6 @@ enum class CheckFor {
 bool check_path_exist(fs::path path, CheckFor target = CheckFor::FILE);
 
 /// @brief function which load's system configuration file from path and based on it create directories
-/// @param directories_config_file_path path for JSON with configuration
+/// @param file_path path for JSON with configuration
 /// @return true if all went ok, false if somethong went wrong
-bool create_system_directories(fs::path directories_config_file_path);
+bool create_system_directories(fs::path file_path);

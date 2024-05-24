@@ -1,7 +1,5 @@
 #include "directory_management.hpp"
 
-#include <iostream>
-
 
 bool check_path_exist(fs::path path, CheckFor target) {
     if (target == CheckFor::FILE) {
@@ -10,17 +8,24 @@ bool check_path_exist(fs::path path, CheckFor target) {
     return fs::exists(path) && fs::is_directory(path);
 }
 
-bool create_system_directories(fs::path directories_config_file_path) {
-    json::json j;
-    j["pi"] = 3.14159;
-    j["happy"] = true;
-    j["name"] = "Niels";
-    j["nothing"] = nullptr;
-    j["answer"]["everything"] = 42;
-    j["list"] = { 1, 0, 2 };
-    j["object"] = { {"currency", "USD"}, {"value", 42.99} };
+bool create_system_directories(fs::path file_path) {
 
-    std::cout << j.dump(4) << std::endl;
+    std::ifstream json_file(file_path);
+
+    // Sprawdź, czy plik został otwarty poprawnie
+    if (!json_file.is_open()) {
+        std::cerr << "Nie można otworzyć pliku: " << file_path << std::endl;
+        return 1;
+    }
+
+    // Parsuj plik JSON do obiektu nlohmann::json
+    json::json json_object;
+    json_file >> json_object;
+
+    // Zamknij plik
+    json_file.close();
+    
+    std::cout << json_object.dump(4) << std::endl;
 
     return true;
 }
