@@ -1,19 +1,21 @@
 {
-    "base": "/SQLame",
-    "data": {
-        "metadata": {
+    "base": "/mnt/c/Projects/SQLame/test/",
+    "directories": {
+        "data": {
+            "metadata": {
+                "tables": {
+
+                },
+                "indexes": {
+
+                }
+            },
             "tables": {
 
             },
-            "indexes": {
-
+            "logs": {
+                
             }
-        },
-        "tables": {
-
-        },
-        "logs": {
-            
         }
     }
 }
