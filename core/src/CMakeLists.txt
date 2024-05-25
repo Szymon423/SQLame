@@ -14,3 +14,7 @@ target_link_libraries(core_lib
     nlohmann_json::nlohmann_json
     spdlog::spdlog
 )
+
+target_include_directories(core_lib PRIVATE
+    ${CMAKE_SOURCE_DIR}/../communication/src
+)
