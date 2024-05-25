@@ -14,8 +14,9 @@ int main() {
     CommunicationServer server(&coreHandler, 9443);
 
     server.start();
-    std::cout << "Server is running. Press Enter to stop." << std::endl;
+    LOG_TRACE("Started communication server.");
     std::cin.get();
 
+    LOG_TRACE("Stopping communication server.");
     server.stop();
 }
