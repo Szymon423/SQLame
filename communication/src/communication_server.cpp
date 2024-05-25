@@ -1,6 +1,5 @@
 #include "communication_server.hpp"
-#include <Poco/Net/SecureServerSocket.h>
-#include <Poco/Net/Context.h>
+#include <Poco/Net/ServerSocket.h>
 #include <Poco/Net/HTTPRequestHandler.h>
 #include <Poco/Net/HTTPServerRequest.h>
 #include <Poco/Net/HTTPServerResponse.h>
@@ -41,9 +40,8 @@ private:
 
 class CommunicationServer::Impl {
 public:
-    Impl(IRequestHandler* handler, const std::string& certFile, const std::string& keyFile, const std::string& caFile, unsigned short port) {
-        Poco::Net::Context::Ptr context(new Poco::Net::Context(Poco::Net::Context::SERVER_USE, certFile, keyFile, caFile));
-        Poco::Net::SecureServerSocket svs(port, 64, context);
+    Impl(IRequestHandler* handler, unsigned short port) {
+        Poco::Net::ServerSocket svs(port);
         Poco::Net::HTTPServerParams* pParams = new Poco::Net::HTTPServerParams;
 
         server = new Poco::Net::HTTPServer(new RequestHandlerFactory(handler), svs, pParams);
@@ -65,8 +63,8 @@ private:
     Poco::Net::HTTPServer* server;
 };
 
-CommunicationServer::CommunicationServer(IRequestHandler* handler, const std::string& certFile, const std::string& keyFile, const std::string& caFile, unsigned short port)
-    : pImpl(new Impl(handler, certFile, keyFile, caFile, port))
+CommunicationServer::CommunicationServer(IRequestHandler* handler, unsigned short port)
+    : pImpl(new Impl(handler, port))
 {}
 
 CommunicationServer::~CommunicationServer() = default;

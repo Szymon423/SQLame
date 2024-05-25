@@ -11,7 +11,7 @@ int main() {
     validate_system_directories(fs::path{"../../config/directories.json"});
 
     CoreRequestHandler coreHandler;
-    CommunicationServer server(&coreHandler, "server.pem", "server.key", "rootcert.pem", 9443);
+    CommunicationServer server(&coreHandler, 9443);
 
     server.start();
     std::cout << "Server is running. Press Enter to stop." << std::endl;

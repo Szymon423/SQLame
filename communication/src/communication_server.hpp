@@ -6,8 +6,9 @@
 
 class CommunicationServer {
 public:
-    CommunicationServer(IRequestHandler* handler, const std::string& certFile, const std::string& keyFile, const std::string& caFile, unsigned short port);
+    CommunicationServer(IRequestHandler* handler, unsigned short port);
     ~CommunicationServer();
+
     void start();
     void stop();
 
