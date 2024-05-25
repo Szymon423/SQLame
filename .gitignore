@@ -3,3 +3,4 @@ compression_encryption/build
 core/build
 management/build
 transaction/build
+build

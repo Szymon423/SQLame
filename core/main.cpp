@@ -6,5 +6,5 @@ int main() {
     Logger::init();
 
     LOG_INFO("Started SQLame Core.");
-    create_system_directories(fs::path{"../../../config/directories.json"});
+    validate_system_directories(fs::path{"../../config/directories.json"});
 }

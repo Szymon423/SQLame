@@ -8,7 +8,7 @@ bool check_path_exist(fs::path path, CheckFor target) {
 	return fs::exists(path) && fs::is_directory(path);
 }
 
-bool create_system_directories(fs::path file_path) {
+bool validate_system_directories(fs::path file_path) {
 	std::ifstream json_file(file_path);
 
 	// Sprawdź, czy plik został otwarty poprawnie
@@ -51,6 +51,9 @@ void iterate_through_directories(const json::json& j, fs::path path) {
 				if (!create_new_directory(new_path)) {
 					// tu coś zrób
 				}
+			}
+			else {
+				LOG_TRACE("Directory {} allready exists.", std::string{new_path});
 			}
             iterate_through_directories(it.value(), new_path);
         }

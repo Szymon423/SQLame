@@ -34,5 +34,10 @@ cd ${BUILD_DIR}
 cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DENABLE_TESTS=${ENABLE_TESTS} ../..
 make
 
+# Kopiuj do katalogu docelowego
+TARGET_DIRECTORY="build/$BUILD_TYPE/"
+mkdir -p "../../../$TARGET_DIRECTORY"
+cp "./src/libcompression_encryption.so" "../../../$TARGET_DIRECTORY"
+
 # Powrót do katalogu głównego
 cd ../..
