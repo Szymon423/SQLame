@@ -13,9 +13,11 @@
                 {
                     "name": "id",
                     "type": "INT",
-                    "unique": true,         // default false
-                    "primary_key": true,    // default false
-                    "autoincrement": true   // default false, only on primary key
+                    "attributes": {
+                        "unique": true,         // default false
+                        "primary_key": true,    // default false
+                        "autoincrement": true   // default false, only on primary key
+                    }
                 },
                 {
                     "name": "name",

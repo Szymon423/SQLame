@@ -18,7 +18,7 @@ int main() {
 
     std::vector<std::unique_ptr<Operation>> operations;
     operations.emplace_back(std::make_unique<SelectOperation>());
-    operations.emplace_back(std::make_unique<CreateOperation>());
+    operations.emplace_back(std::make_unique<CreateTableOperation>());
 
     for (auto& operation : operations) {
         LOG_TRACE("{}", operation->resolve());
