@@ -12,7 +12,6 @@ namespace json = nlohmann;
 
 /// @brief enum containing all acceptable tokens
 enum class TokenType {
-    REQUEST,
     CREATE,
     SELECT,
     INSERT,
@@ -37,12 +36,20 @@ enum class TokenType {
     HOW,
     ASCENDING,
     DESCENDING,
+    REQUEST,
+    ARRAY_ELEMENT,
+    VALUE_NUMBER,
+    VALUE_BOOLEAN,
+    LABEL,
     UNKNOWN
 };
 
 class Token {
 public:
     TokenType type;
+    std::optional<std::string> label;
+    std::optional<double> value_number;
+    std::optional<bool> value_boolean;
     std::optional<std::variant<std::unique_ptr<Token>, std::vector<std::unique_ptr<Token>>>> child;
 };
 
