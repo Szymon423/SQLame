@@ -7,7 +7,6 @@
 /// @brief clas handling http communication server
 class CommunicationServer {
 public:
-
     /// @brief constructor
     /// @param handler object responsible for handling requests processing
     /// @param port port for communication

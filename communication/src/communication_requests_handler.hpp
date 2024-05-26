@@ -2,7 +2,6 @@
 
 #include <string>
 
-
 /// @brief interface which will be used to create RequestsHandler class
 class IRequestHandler {
 public:
