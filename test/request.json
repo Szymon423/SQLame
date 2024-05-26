@@ -1,0 +1,18 @@
+{
+    "SELECT": {
+        "WHAT": ["id", "value", "valid"],
+        "FROM": "my_table",
+        "WHERE": {
+            "id": {
+                "IN": [123, 456],
+                ">": 123,
+                "<": 456,
+                "=": 333
+            }
+        },
+        "ORDER": {
+            "BY": "id",
+            "HOW": "ASC"
+        }
+    }
+}
