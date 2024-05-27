@@ -12,6 +12,7 @@ namespace json = nlohmann;
 
 /// @brief enum containing all acceptable tokens
 enum class TokenType {
+    NOT_SET,
     CREATE,
     SELECT,
     INSERT,

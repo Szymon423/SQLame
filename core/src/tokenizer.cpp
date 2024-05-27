@@ -3,6 +3,7 @@
 
 TokenType mapKeyToToken(const std::string& key) {
     static std::unordered_map<std::string, TokenType> keyToTokenMap = {
+        { "NOT_SET", TokenType::NOT_SET },
         { "CREATE", TokenType::CREATE },
         { "TABLE", TokenType::TABLE },
         { "SELECT", TokenType::SELECT },
@@ -40,6 +41,8 @@ TokenType mapKeyToToken(const std::string& key) {
 void iterate_through_request(const json::json& j, std::unique_ptr<Token>& t) {
     std::vector<std::unique_ptr<Token>> tokens;
 
+    
+
     if (j.is_object()) {
         for (auto it = j.begin(); it != j.end(); ++it) {
             std::unique_ptr<Token> token = std::make_unique<Token>();
@@ -62,6 +65,27 @@ void iterate_through_request(const json::json& j, std::unique_ptr<Token>& t) {
     } 
     else {
         std::unique_ptr<Token> token = std::make_unique<Token>();
+
+        if (t->type == TokenType::ARRAY_ELEMENT) {
+            if (j.is_string()) {
+                t->type = mapKeyToToken(j.get<std::string>());
+                if (t->type == TokenType::LABEL) {
+                    t->label = j.get<std::string>();
+                }
+            } 
+            else if (j.is_boolean()) {
+                t->type = TokenType::VALUE_BOOLEAN;
+                t->value_boolean = j.get<bool>();
+            } 
+            else if (j.is_number()) {
+                t->type = TokenType::VALUE_NUMBER;
+                t->value_number = j.get<double>();
+            } 
+            else {
+                t->type = TokenType::UNKNOWN;
+            }
+            return;
+        }
 
         if (j.is_string()) {
             token->type = mapKeyToToken(j.get<std::string>());
@@ -97,6 +121,7 @@ std::unique_ptr<Token> tokenize(const json::json& j) {
 std::string tokenTypeToString(TokenType type) {
     static std::unordered_map<TokenType, std::string> tokenTypeToStringMap = {
         { TokenType::REQUEST, "REQUEST" },
+        { TokenType::NOT_SET, "NOT_SET" },
         { TokenType::CREATE, "CREATE" },
         { TokenType::TABLE, "TABLE" },
         { TokenType::SELECT, "SELECT" },

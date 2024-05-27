@@ -49,16 +49,20 @@
 
 ```json
 {
-    "select" : {
-        "what": ["id", "value", "valid"],
-        "from": "my_table",
-        "where": {
+    "SELECT": {
+        "WHAT": ["id", "value", "valid"],
+        "FROM": "my_table",
+        "WHERE": {
             "id": {
-                "in": [123, 456],
+                "IN": [123, 456],
                 ">": 123,
                 "<": 456,
                 "=": 333
             }
+        },
+        "ORDER": {
+            "BY": "id",
+            "HOW": "ASC"
         }
     }
 }
