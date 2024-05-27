@@ -1,14 +1,16 @@
-# Core module
+# SQLame documentation
 
-## Language syntax
+## Project description
+Main idea is to create database engine which allows to store data. But worse.
 
-### Create
+## Syntax
 
+* `CREATE` Command
 ```json
 {
     "CREATE": {
         "TABLE": {
-            "NAME": "MY_TABLE",
+            "NAME": "my_table",
             "COLUMNS": [
                 {
                     "NAME": "id",
@@ -45,27 +47,7 @@
 }
 ```
 
-### Select
-
-```json
-{
-    "SELECT": {
-        "WHAT": ["id", "value", "valid"],
-        "FROM": "my_table",
-        "WHERE": {
-            "id": {
-                "IN": [123, 456],
-                ">": 123,
-                "<": 456,
-                "=": 333
-            }
-        }
-    }
-}
-```
-
-### Order
-
+* `SELECT` Command
 ```json
 {
     "SELECT" : {
@@ -86,3 +68,24 @@
     }
 }
 ```
+
+
+## Commands
+* `mkdocs serve` - Start the live-reloading docs server.
+* `mkdocs build` - Build the documentation site.
+* `mkdocs -h` - Print help message and exit.
+
+## Project layout
+
+    communication/          # The configuration file.
+        src/
+            CMakeLists.txt
+            
+        tests/
+        build.sh
+        clean.sh
+        CMakeLists.txt
+        README.md
+    docs/
+        index.md  # The documentation homepage.
+        ...       # Other markdown pages, images and other files.

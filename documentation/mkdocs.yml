@@ -1,0 +1,5 @@
+site_name: SQLame docs
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  # - pymdownx.superfences
