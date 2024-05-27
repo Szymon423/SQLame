@@ -27,7 +27,13 @@ TokenType mapKeyToToken(const std::string& key) {
         { "BY", TokenType::BY },
         { "HOW", TokenType::HOW },
         { "ASC", TokenType::ASCENDING },
-        { "DESC", TokenType::DESCENDING }
+        { "DESC", TokenType::DESCENDING },
+        { "TEXT", TokenType::TEXT },
+        { "BOOLEAN", TokenType::BOOLEAN },
+        { "DOUBLE", TokenType::DOUBLE },
+        { "UNIX_TIME", TokenType::UNIX_TIME },
+        { "UNIX_TIME_MS", TokenType::UNIX_TIME_MS },
+        { "BLOB", TokenType::BLOB }
     };
 
     auto it = keyToTokenMap.find(key);
@@ -150,7 +156,13 @@ std::string tokenTypeToString(TokenType type) {
         { TokenType::ARRAY_ELEMENT, "ARRAY_ELEMENT" },
         { TokenType::VALUE_NUMBER, "VALUE_NUMBER" },
         { TokenType::VALUE_BOOLEAN, "VALUE_BOOLEAN" },
-        { TokenType::UNKNOWN, "UNKNOWN" }
+        { TokenType::UNKNOWN, "UNKNOWN" },
+        { TokenType::TEXT, "TEXT" },
+        { TokenType::BOOLEAN, "BOOLEAN" },
+        { TokenType::DOUBLE, "DOUBLE" },
+        { TokenType::UNIX_TIME, "UNIX_TIME" },
+        { TokenType::UNIX_TIME_MS, "UNIX_TIME_MS" },
+        { TokenType::BLOB, "BLOB" }
     };
 
     auto it = tokenTypeToStringMap.find(type);

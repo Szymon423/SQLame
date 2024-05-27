@@ -42,7 +42,13 @@ enum class TokenType {
     VALUE_NUMBER,
     VALUE_BOOLEAN,
     LABEL,
-    UNKNOWN
+    UNKNOWN,
+    TEXT,
+    BOOLEAN,
+    DOUBLE,
+    UNIX_TIME,
+    UNIX_TIME_MS,
+    BLOB
 };
 
 class Token {

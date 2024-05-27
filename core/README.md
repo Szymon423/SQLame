@@ -6,38 +6,38 @@
 
 ```json
 {
-    "create": {
-        "table": {
-            "name": "MY_TABLE",
-            "columns": [
+    "CREATE": {
+        "TABLE": {
+            "NAME": "MY_TABLE",
+            "COLUMNS": [
                 {
-                    "name": "id",
-                    "type": "INT",
-                    "attributes": {
-                        "unique": true,         // default false
-                        "primary_key": true,    // default false
-                        "autoincrement": true   // default false, only on primary key
-                    }
+                    "NAME": "id",
+                    "TYPE": "INT",
+                    "ATTRIBUTES": [
+                        "UNIQUE",
+                        "PRIMARY_KEY",
+                        "AUTOINCREMENT"
+                    ]
                 },
                 {
-                    "name": "name",
-                    "type": "TEXT"
+                    "NAME": "name",
+                    "TYPE": "TEXT"
                 },
                 {
-                    "name": "valid",
-                    "type": "BOOLEAN"
+                    "NAME": "valid",
+                    "TYPE": "BOOLEAN"
                 },
                 {
-                    "name": "value",
-                    "type": "DOUBLE"
+                    "NAME": "value",
+                    "TYPE": "DOUBLE"
                 },
                 {
-                    "name": "timestamp",
-                    "type": "UNIX_TIME" // can be also UNIX_TIME_MS 
+                    "NAME": "timestamp",
+                    "TYPE": "UNIX_TIME"
                 },
                 {
-                    "name": "something",
-                    "type": "BLOB"
+                    "NAME": "something",
+                    "TYPE": "BLOB"
                 }
             ]
         }
@@ -72,20 +72,20 @@
 
 ```json
 {
-    "select" : {
-        "what": ["id", "value", "valid"],
-        "from": "my_table",
-        "where": {
+    "SELECT" : {
+        "COLUMNS": ["id", "value", "valid"],
+        "FROM": "my_table",
+        "WHERE": {
             "id": {
                 "in": [123, 456],
                 ">": 123,
                 "<": 456,
                 "=": 333
-            },
+            }
         },
-        "order": {
-            "by": "id",
-            "how": "ASC"
+        "ORDER": {
+            "BY": "id",
+            "HOW": "ASC"
         }
     }
 }
