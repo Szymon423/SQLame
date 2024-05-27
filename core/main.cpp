@@ -5,7 +5,7 @@
 #include "directory_management.hpp"
 #include "core_requests_handler.hpp"
 #include "communication_server.hpp"
-#include "language_syntax.hpp"
+#include "operation_generator.hpp"
 #include "tokenizer.hpp"
 
 int main() {

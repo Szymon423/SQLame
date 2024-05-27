@@ -15,6 +15,7 @@ TokenType mapKeyToToken(const std::string& key) {
         { "UNIQUE", TokenType::UNIQUE },
         { "PRIMARY_KEY", TokenType::PRIMARY_KEY },
         { "AUTOINCREMENT", TokenType::AUTOINCREMENT },
+        { "NOT_NULL", TokenType::NOT_NULL },
         { "ATTRIBUTES", TokenType::ATTRIBUTES },
         { "WHAT", TokenType::WHAT },
         { "FROM", TokenType::FROM },
@@ -139,6 +140,7 @@ std::string tokenTypeToString(TokenType type) {
         { TokenType::UNIQUE, "UNIQUE" },
         { TokenType::PRIMARY_KEY, "PRIMARY_KEY" },
         { TokenType::AUTOINCREMENT, "AUTOINCREMENT" },
+        { TokenType::NOT_NULL, "NOT_NULL" },
         { TokenType::ATTRIBUTES, "ATTRIBUTES" },
         { TokenType::WHAT, "WHAT" },
         { TokenType::FROM, "FROM" },
@@ -188,13 +190,9 @@ std::string print_token(const Token& t, int depth) {
         oss << " " << (*t.value_boolean ? "true" : "false");
     }
 
-    if (t.child) {
-        if (auto* children = std::get_if<std::vector<std::unique_ptr<Token>>>(&*t.child)) {
-            for (const auto& child : *children) {
-                oss << "\n" << print_token(*child, depth + 1);
-            }
-        } else if (auto* singleChild = std::get_if<std::unique_ptr<Token>>(&*t.child)) {
-            oss << "\n" << print_token(**singleChild, depth + 1);
+    if (t.child.has_value()) {
+        for (const auto& child : t.child.value()) {
+            oss << "\n" << print_token(*child, depth + 1);
         }
     }
 

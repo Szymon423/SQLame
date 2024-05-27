@@ -24,6 +24,7 @@ enum class TokenType {
     UNIQUE,
     PRIMARY_KEY,
     AUTOINCREMENT,
+    NOT_NULL,
     ATTRIBUTES,
     WHAT,
     FROM,
@@ -57,7 +58,7 @@ public:
     std::optional<std::string> label;
     std::optional<double> value_number;
     std::optional<bool> value_boolean;
-    std::optional<std::variant<std::unique_ptr<Token>, std::vector<std::unique_ptr<Token>>>> child;
+    std::optional<std::vector<std::unique_ptr<Token>>> child;
 };
 
 /// @brief function to map key to token
