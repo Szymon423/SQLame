@@ -93,12 +93,8 @@ std::vector<Column> create_columns(std::unique_ptr<Token>& token) {
     if (token->child.has_value()) {
         for (auto& array_element: token->child.value()) {
             if (array_element->type == TokenType::ARRAY_ELEMENT) {
-                if (array_element->child.has_value()) {
-                    columns.push_back(create_column(array_element->child.value()))
-                }
-                else {
-                    // throw exception: collumn definition missing
-                }
+                auto col = create_column(array_element);
+                columns.push_back(std::move(col));
             }
             else {
                 // throw exception: columns definitions must be in array
@@ -129,8 +125,10 @@ Column create_column(std::unique_ptr<Token>& token) {
                 if (item->child.has_value()) {
                     auto& c = item->child.value();
                     if (c.size() == 1) {
-                        
-                        
+                        column.data_type = get_data_type(c.at(0));
+                        if (column.data_type == DataType::NOT_FOUND) {
+                            // throw exception: not correct column data type 
+                        }
                     }
                     else {
                         // throw exception: column definition contains multiple type declarations
@@ -139,6 +137,12 @@ Column create_column(std::unique_ptr<Token>& token) {
                 else {
                     // throw exception: column definition is missing type
                 }
+            }
+            else if (item->type == TokenType::ATTRIBUTES) {
+                column.atributes = get_column_attributes(item);
+            }
+            else {
+                // throw exception: unknown element in column definition
             }
         }
 
@@ -150,15 +154,40 @@ Column create_column(std::unique_ptr<Token>& token) {
 }
 
 DataType get_data_type(std::unique_ptr<Token>& token) {
-    swich (token->type) {
-        case TokenType::TEXT: return DataType::TEXT;
-        case TokenType::INT: return DataType::INT;
-        case TokenType::DOUBLE: return DataType::DOUBLE;
-        case TokenType::TEXT: return DataType::TEXT;
-        case TokenType::BOLLEAN: return DataType::BOLLEAN;
-        case TokenType::UNIX_TIME: return DataType::UNIX_TIME;
-        case TokenType::UNIX_TIME_MS: return DataType::UNIX_TIME_MS;
-        case TokenType::BLOB: return DataType::BLOB;
-        default: return DataType::NOT_FOUND;
+    if (token->type == TokenType::TEXT) return DataType::TEXT;
+    if (token->type == TokenType::INT) return DataType::INT;
+    if (token->type == TokenType::DOUBLE) return DataType::DOUBLE;
+    if (token->type == TokenType::TEXT) return DataType::TEXT;
+    if (token->type == TokenType::BOOLEAN) return DataType::BOOLEAN;
+    if (token->type == TokenType::UNIX_TIME) return DataType::UNIX_TIME;
+    if (token->type == TokenType::UNIX_TIME_MS) return DataType::UNIX_TIME_MS;
+    if (token->type == TokenType::BLOB) return DataType::BLOB;
+    return DataType::NOT_FOUND;
+}
+
+std::vector<ColumnAttributes> get_column_attributes(std::unique_ptr<Token>& token) {
+    std::vector<ColumnAttributes> atributes;
+    if (token->child.has_value()) {
+        for (auto& item: token->child.value()) {
+            auto atr = get_column_attribute(item);
+            if (atr == ColumnAttributes::NOT_FOUND) {
+                // throw exception: unknonw collumn attribute
+            }
+            else {
+                atributes.push_back(std::move(atr));
+            }
+        }
     }
+    else {
+        // throw exception: collumn definition with empty body
+    }
+    return std::move(atributes);
+}
+
+ColumnAttributes get_column_attribute(std::unique_ptr<Token>& token) {
+    if (token->type == TokenType::UNIQUE) return ColumnAttributes::UNIQUE;
+    if (token->type == TokenType::PRIMARY_KEY) return ColumnAttributes::PRIMARY_KEY;
+    if (token->type == TokenType::AUTOINCREMENT) return ColumnAttributes::AUTOINCREMENT;
+    if (token->type == TokenType::NOT_NULL) return ColumnAttributes::NOT_NULL;
+    return ColumnAttributes::NOT_FOUND;
 }

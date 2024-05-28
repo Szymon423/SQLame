@@ -47,6 +47,7 @@ enum class TokenType {
     TEXT,
     BOOLEAN,
     DOUBLE,
+    INT,
     UNIX_TIME,
     UNIX_TIME_MS,
     BLOB

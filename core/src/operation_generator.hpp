@@ -23,7 +23,8 @@ enum class ColumnAttributes {
     UNIQUE,         // value in collumn must be unique
     PRIMARY_KEY,    // value in collumn is primary key
     AUTOINCREMENT,  // value in collumn when it's primmary key is automaticly incremented
-    NOT_NULL        // value can not be null
+    NOT_NULL,       // value can not be null
+    NOT_FOUND       // not found data type
 };
 
 /// @brief enum with allowed data types in collumn
@@ -31,7 +32,7 @@ enum class DataType {
     INT,            // signed integer 64-bit
     DOUBLE,         // double 64-bit
     TEXT,           // text/string
-    BOLLEAN,        // boolean - true/false
+    BOOLEAN,        // boolean - true/false
     UNIX_TIME,      // unix time value in seconds
     UNIX_TIME_MS,   // unix time value in miliseconds
     BLOB,           // bytes array
@@ -121,3 +122,13 @@ Column create_column(std::unique_ptr<Token>& token);
 /// @param token with data type
 /// @return selected data type
 DataType get_data_type(std::unique_ptr<Token>& token);
+
+/// @brief function which converts atributes token to vector of column atributes
+/// @param token atributes token
+/// @return vector of ColumnAttributes
+std::vector<ColumnAttributes> get_column_attributes(std::unique_ptr<Token>& token);
+
+/// @brief function which retrieves ColumnAttributes from token
+/// @param token with ColumnAttributes
+/// @return selected ColumnAttributes
+ColumnAttributes get_column_attribute(std::unique_ptr<Token>& token);

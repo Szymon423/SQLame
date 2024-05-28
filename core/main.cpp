@@ -43,6 +43,8 @@ int main() {
 
     auto resoult = tokenize(j);
 
+    auto operation = generate_create_operation(resoult);
+
     std::cout << print_token(*resoult) << std::endl;
 
     // server.start();
