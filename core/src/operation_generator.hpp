@@ -141,3 +141,18 @@ std::vector<ColumnAttributes> get_column_attributes(std::unique_ptr<Token>& toke
 /// @param token with ColumnAttributes
 /// @return selected ColumnAttributes
 ColumnAttributes get_column_attribute(std::unique_ptr<Token>& token);
+
+/// @brief function which retireives label from token which should have label child
+/// @param token token which should have label child
+/// @return string from label
+std::string get_label_string(std::unique_ptr<Token>& token);
+
+/// @brief function to convert DataType to string
+/// @param dt data type
+/// @return string representation of DataType
+std::string DataType_to_string(const DataType& dt);
+
+/// @brief function to convert ColumnAttributes to string
+/// @param ca collumn attribute
+/// @return string representation of ColumnAttributes
+std::string ColumnAttributes_to_string(const ColumnAttributes& ca);

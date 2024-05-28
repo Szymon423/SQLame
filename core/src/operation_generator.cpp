@@ -22,15 +22,14 @@ CreateTableOperation::CreateTableOperation() {
 std::string CreateTableOperation::resolve() {
     std::stringstream ss;
     ss << "Create table request\n";
-    ss << "\t table name: " << table.name << "\n";
+    ss << "  table name: '" << table.name << "'\n";
     for (auto& col: table.columns) {
-        ss << "\t\t column: " << col.name << "\n";
-        ss << "\t\t\t name: " << col.name << "\n";
-        ss << "\t\t\t attributes: \n";
+        ss << "    column: '" << col.name << "'\n";
+        ss << "       attributes: \n";
         for (auto& atr: col.atributes) {
-            ss << "\t\t\t\t some atr\n";
+            ss << "        " << ColumnAttributes_to_string(atr) << "\n";
         }
-        ss << "\t\t\t data type: " << "some data type" << "\n";
+        ss << "      data type: " << DataType_to_string(col.data_type) << "\n";
     }
     return ss.str();
 }
@@ -130,12 +129,12 @@ std::unique_ptr<CreateTableOperation> generate_create_table_operation(std::uniqu
                     throw OperationException(e.what());
                 }
             }
-            if (child->type == TokenType::LABEL) {
-                if (child->label.has_value()) {
-                    cto->table.name = child->label.value();
+            if (child->type == TokenType::NAME) {
+                try {
+                    cto->table.name = get_label_string(child);
                 }
-                else {
-                    throw OperationException("Missing table name."); 
+                catch (OperationException& e) {
+                    throw OperationException(e.what()); 
                 }
             }
         }
@@ -177,11 +176,11 @@ Column create_column(std::unique_ptr<Token>& token) {
     if (token->child.has_value()) {
         for (auto& item: token->child.value()) {
             if (item->type == TokenType::NAME) {
-                if (item->label.has_value()) {
-                    column.name = item->label.value();
+                try {
+                    column.name = get_label_string(item);
                 }
-                else {
-                    throw OperationException("Column definition is missing name."); 
+                catch (OperationException& e) {
+                    throw OperationException(e.what()); 
                 }
             }
             else if (item->type == TokenType::TYPE) {
@@ -259,4 +258,50 @@ ColumnAttributes get_column_attribute(std::unique_ptr<Token>& token) {
     if (token->type == TokenType::AUTOINCREMENT) return ColumnAttributes::AUTOINCREMENT;
     if (token->type == TokenType::NOT_NULL) return ColumnAttributes::NOT_NULL;
     return ColumnAttributes::NOT_FOUND;
+}
+
+std::string get_label_string(std::unique_ptr<Token>& token) {
+    if (token->child.has_value()) {
+        auto& children = token->child.value();
+        if (children.size() == 1) {
+            auto& child = children.at(0);
+            if (child->label.has_value()) {
+                return child->label.value();
+            }
+            else {
+                throw OperationException("No label provided.");
+            }
+        }
+        else {
+            throw OperationException("Label must have only one element.");
+        }
+    }
+    else {
+        throw OperationException("Element does not have label.");
+    }
+}
+
+std::string DataType_to_string(const DataType& dt) {
+    switch (dt) {
+        case DataType::INT: return "INT";
+        case DataType::DOUBLE: return "DOUBLE";
+        case DataType::TEXT: return "TEXT";
+        case DataType::BOOLEAN: return "BOOLEAN";
+        case DataType::UNIX_TIME: return "UNIX_TIME";
+        case DataType::UNIX_TIME_MS: return "UNIX_TIME_MS";
+        case DataType::BLOB: return "BLOB";
+        case DataType::NOT_FOUND: return "NOT_FOUND";
+        default: "Something went wrong";
+    }
+}
+
+std::string ColumnAttributes_to_string(const ColumnAttributes& ca) {
+    switch (ca) {
+        case ColumnAttributes::UNIQUE: return "UNIQUE";
+        case ColumnAttributes::PRIMARY_KEY: return "PRIMARY_KEY";
+        case ColumnAttributes::AUTOINCREMENT: return "AUTOINCREMENT";
+        case ColumnAttributes::NOT_NULL: return "NOT_NULL";
+        case ColumnAttributes::NOT_FOUND: return "NOT_FOUND";
+        default: "Something went wrong";
+    }
 }
