@@ -17,10 +17,18 @@ As name of this project suggest I want it to be `SQL'ish` - but worse. It won't 
 
 ```json
 {
-    "select" : {
-        "what": ["id", "value", "valid"],
-        "from": "my_table",
-        "where": "id > 2"
+    "SELECT" : {
+        "COLUMNS": ["id", "value", "valid"],
+        "FROM": "my_table",
+        "WHERE": {
+            "id": {
+                "in": [123, 456],
+            }
+        },
+        "ORDER": {
+            "BY": "id",
+            "HOW": "ASC"
+        }
     }
 }
 ```
