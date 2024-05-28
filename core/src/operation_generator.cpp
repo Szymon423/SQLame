@@ -1,6 +1,15 @@
 #include "operation_generator.hpp"
 #include "log.hpp"
 
+
+OperationException::OperationException(const std::string msg): message(msg) {
+
+}
+
+const char* OperationException::what() {
+    return message.c_str();
+}
+
 CreateOperation::CreateOperation() {
     operation_type = OperationType::CREATE;
 }
@@ -48,8 +57,13 @@ std::unique_ptr<Operation> generate_operation(std::unique_ptr<Token>& token) {
             if (children.size() == 1) {
                 std::unique_ptr<Token>& child = children.at(0);
                 if (child->type == TokenType::CREATE) {
-                    LOG_TRACE("Token is CREATE token.");
-                    return generate_create_operation(child);
+                    try {
+                        return generate_create_operation(child);
+                    }
+                    catch (OperationException& e) {
+                        LOG_ERROR("Caught an exception while generating create operation: {}", e.what());
+                        throw OperationException(e.what());
+                    }
                 }
                 if (child->type == TokenType::SELECT) {
                     // return generate_select_operation(child);
@@ -76,15 +90,21 @@ std::unique_ptr<CreateOperation> generate_create_operation(std::unique_ptr<Token
         if (children.size() == 1) {
             auto& child = children.at(0);
             if (child->type == TokenType::TABLE) {
-                return generate_create_table_operation(child);
+                try {
+                    return generate_create_table_operation(child);
+                }
+                catch (OperationException& e) {
+                    LOG_ERROR("Caught an exception while generating create table operation: {}", e.what());
+                    throw OperationException(e.what());
+                }
             }
         }
         else {
-            // throw exception: only one element can be in create statement
+            throw OperationException("Only one element can be in create statement."); 
         }
     }
     else {
-        // throw exception: create statement is empty
+        throw OperationException("Create statement is empty."); 
     }
    
     // if (token->type == TokenType::VIEW) {
@@ -102,14 +122,20 @@ std::unique_ptr<CreateTableOperation> generate_create_table_operation(std::uniqu
     if (token->child.has_value()) {
         for (auto& child: token->child.value()) {
             if (child->type == TokenType::COLUMNS) {
-                cto->table.columns = create_columns(child);
+                try {
+                    cto->table.columns = create_columns(child);
+                }
+                catch (OperationException& e) {
+                    LOG_ERROR("Caught an exception while creating columns: {}", e.what());
+                    throw OperationException(e.what());
+                }
             }
             if (child->type == TokenType::LABEL) {
                 if (child->label.has_value()) {
                     cto->table.name = child->label.value();
                 }
                 else {
-                    // throw exception: missing table name
+                    throw OperationException("Missing table name."); 
                 }
             }
         }
@@ -120,21 +146,26 @@ std::unique_ptr<CreateTableOperation> generate_create_table_operation(std::uniqu
 
 std::vector<Column> create_columns(std::unique_ptr<Token>& token) {
     LOG_TRACE("Creating collumns.");
-    // toke->type == TokenType::COLUMNS
     std::vector<Column> columns;
     if (token->child.has_value()) {
         for (auto& array_element: token->child.value()) {
             if (array_element->type == TokenType::ARRAY_ELEMENT) {
-                auto col = create_column(array_element);
-                columns.push_back(std::move(col));
+                try {
+                    auto col = create_column(array_element);
+                    columns.push_back(std::move(col));
+                }
+                catch (OperationException& e) {
+                    LOG_ERROR("Caught an exception while creating column: {}", e.what());
+                    throw OperationException(e.what());
+                }
             }
             else {
-                // throw exception: columns definitions must be in array
+                throw OperationException("Columns definitions must be in array."); 
             }
         }
     }
     else {
-        // throw exception: no column definitions provided
+        throw OperationException("No column definitions provided."); 
     }
     return std::move(columns);
 }
@@ -142,7 +173,6 @@ std::vector<Column> create_columns(std::unique_ptr<Token>& token) {
 
 Column create_column(std::unique_ptr<Token>& token) {
     LOG_TRACE("Creating collumn.");
-    // toke->type == TokenType::ARRAY_ELEMENT
     Column column;
     if (token->child.has_value()) {
         for (auto& item: token->child.value()) {
@@ -151,7 +181,7 @@ Column create_column(std::unique_ptr<Token>& token) {
                     column.name = item->label.value();
                 }
                 else {
-                    // throw exception: column definition is missing name
+                    throw OperationException("Column definition is missing name."); 
                 }
             }
             else if (item->type == TokenType::TYPE) {
@@ -160,28 +190,33 @@ Column create_column(std::unique_ptr<Token>& token) {
                     if (c.size() == 1) {
                         column.data_type = get_data_type(c.at(0));
                         if (column.data_type == DataType::NOT_FOUND) {
-                            // throw exception: not correct column data type 
+                            throw OperationException("Data type in column definition is wrong."); 
                         }
                     }
                     else {
-                        // throw exception: column definition contains multiple type declarations
+                        throw OperationException("Column definition contains multiple data type declarations."); 
                     }
                 }
                 else {
-                    // throw exception: column definition is missing type
+                    throw OperationException("Column definition is missing data type."); 
                 }
             }
             else if (item->type == TokenType::ATTRIBUTES) {
-                column.atributes = get_column_attributes(item);
+                try {
+                    column.atributes = get_column_attributes(item);
+                }
+                catch (OperationException& e) {
+                    LOG_ERROR("Caught an exception while getting column attributes: {}", e.what());
+                    throw OperationException(e.what());
+                }
             }
             else {
-                // throw exception: unknown element in column definition
+                throw OperationException("Unknown element in column definition."); 
             }
         }
-
     }
     else {
-        // throw exception: collumn definition with empty body
+        throw OperationException("Collumn definition with empty body."); 
     }
     return std::move(column);
 }
@@ -205,7 +240,7 @@ std::vector<ColumnAttributes> get_column_attributes(std::unique_ptr<Token>& toke
         for (auto& item: token->child.value()) {
             auto atr = get_column_attribute(item);
             if (atr == ColumnAttributes::NOT_FOUND) {
-                // throw exception: unknonw collumn attribute
+                throw OperationException("Unknonw collumn attribute."); 
             }
             else {
                 atributes.push_back(std::move(atr));
@@ -213,7 +248,7 @@ std::vector<ColumnAttributes> get_column_attributes(std::unique_ptr<Token>& toke
         }
     }
     else {
-        // throw exception: collumn definition with empty body
+        throw OperationException("Column attributes definition with empty body."); 
     }
     return std::move(atributes);
 }

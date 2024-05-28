@@ -4,6 +4,15 @@
 #include <string>
 #include "tokenizer.hpp"
 
+class OperationException : public std::exception {
+private:
+    std::string message;
+
+public:
+    OperationException(const std::string msg);
+    const char* what ();
+};
+
 /// @brief enum defining oprtation type
 enum class OperationType {
     CREATE,     // create operation

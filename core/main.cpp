@@ -43,11 +43,15 @@ int main() {
 
     auto resoult = tokenize(j);
 
-    auto operation = generate_operation(resoult);
-    if (operation == nullptr) {
-        std::cout << "generate_create_operation returned nullptr" << std::endl;
+    std::unique_ptr<Operation> operation = nullptr;
+    try {
+        operation = generate_operation(resoult);
+    }
+    catch (OperationException& e) {
+        LOG_ERROR("Caught an exception: {}", e.what());
         return 1;
     }
+
 
     std::cout << operation->resolve() << std::endl;
 
