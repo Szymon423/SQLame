@@ -1,4 +1,5 @@
 #include "operation_generator.hpp"
+#include "log.hpp"
 
 CreateOperation::CreateOperation() {
     operation_type = OperationType::CREATE;
@@ -10,7 +11,19 @@ CreateTableOperation::CreateTableOperation() {
 }
 
 std::string CreateTableOperation::resolve() {
-    return "Create table operation resoult.";
+    std::stringstream ss;
+    ss << "Create table request\n";
+    ss << "\t table name: " << table.name << "\n";
+    for (auto& col: table.columns) {
+        ss << "\t\t column: " << col.name << "\n";
+        ss << "\t\t\t name: " << col.name << "\n";
+        ss << "\t\t\t attributes: \n";
+        for (auto& atr: col.atributes) {
+            ss << "\t\t\t\t some atr\n";
+        }
+        ss << "\t\t\t data type: " << "some data type" << "\n";
+    }
+    return ss.str();
 }
 
 
@@ -24,8 +37,10 @@ std::string SelectOperation::resolve() {
 
 
 std::unique_ptr<Operation> generate_operation(std::unique_ptr<Token>& token) {
+    LOG_TRACE("Generating operation.");
     // check if first token is REQUEST token
     if (token->type == TokenType::REQUEST) {
+        LOG_TRACE("Token is REQUEST token.");
         // check if REQUEST token has any children
         if (token->child.has_value()) {
             std::vector<std::unique_ptr<Token>>& children = token->child.value();
@@ -33,6 +48,7 @@ std::unique_ptr<Operation> generate_operation(std::unique_ptr<Token>& token) {
             if (children.size() == 1) {
                 std::unique_ptr<Token>& child = children.at(0);
                 if (child->type == TokenType::CREATE) {
+                    LOG_TRACE("Token is CREATE token.");
                     return generate_create_operation(child);
                 }
                 if (child->type == TokenType::SELECT) {
@@ -54,9 +70,23 @@ std::unique_ptr<Operation> generate_operation(std::unique_ptr<Token>& token) {
 
 
 std::unique_ptr<CreateOperation> generate_create_operation(std::unique_ptr<Token>& token) {
-    if (token->type == TokenType::TABLE) {
-        return generate_create_table_operation(token);
+    LOG_TRACE("Generating CREATE operation.");
+    if (token->child.has_value()) {
+        auto& children = token->child.value();
+        if (children.size() == 1) {
+            auto& child = children.at(0);
+            if (child->type == TokenType::TABLE) {
+                return generate_create_table_operation(child);
+            }
+        }
+        else {
+            // throw exception: only one element can be in create statement
+        }
     }
+    else {
+        // throw exception: create statement is empty
+    }
+   
     // if (token->type == TokenType::VIEW) {
     //    return generate_create_view_operation(token);
     // }
@@ -67,15 +97,16 @@ std::unique_ptr<CreateOperation> generate_create_operation(std::unique_ptr<Token
 }
 
 std::unique_ptr<CreateTableOperation> generate_create_table_operation(std::unique_ptr<Token>& token) {
-    CreateTableOperation cto;
+    LOG_TRACE("Generating CREATE TABLE operation.");
+    std::unique_ptr<CreateTableOperation> cto = std::make_unique<CreateTableOperation>();
     if (token->child.has_value()) {
         for (auto& child: token->child.value()) {
             if (child->type == TokenType::COLUMNS) {
-                cto.table.columns = create_columns(child);
+                cto->table.columns = create_columns(child);
             }
             if (child->type == TokenType::LABEL) {
                 if (child->label.has_value()) {
-                    cto.table.name = child->label.value();
+                    cto->table.name = child->label.value();
                 }
                 else {
                     // throw exception: missing table name
@@ -83,11 +114,12 @@ std::unique_ptr<CreateTableOperation> generate_create_table_operation(std::uniqu
             }
         }
     }
-    return nullptr;
+    return cto;
 }
 
 
 std::vector<Column> create_columns(std::unique_ptr<Token>& token) {
+    LOG_TRACE("Creating collumns.");
     // toke->type == TokenType::COLUMNS
     std::vector<Column> columns;
     if (token->child.has_value()) {
@@ -109,6 +141,7 @@ std::vector<Column> create_columns(std::unique_ptr<Token>& token) {
 
 
 Column create_column(std::unique_ptr<Token>& token) {
+    LOG_TRACE("Creating collumn.");
     // toke->type == TokenType::ARRAY_ELEMENT
     Column column;
     if (token->child.has_value()) {
@@ -166,6 +199,7 @@ DataType get_data_type(std::unique_ptr<Token>& token) {
 }
 
 std::vector<ColumnAttributes> get_column_attributes(std::unique_ptr<Token>& token) {
+    LOG_TRACE("Getting collumn attributes.");
     std::vector<ColumnAttributes> atributes;
     if (token->child.has_value()) {
         for (auto& item: token->child.value()) {

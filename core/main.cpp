@@ -43,7 +43,13 @@ int main() {
 
     auto resoult = tokenize(j);
 
-    auto operation = generate_create_operation(resoult);
+    auto operation = generate_operation(resoult);
+    if (operation == nullptr) {
+        std::cout << "generate_create_operation returned nullptr" << std::endl;
+        return 1;
+    }
+
+    std::cout << operation->resolve() << std::endl;
 
     std::cout << print_token(*resoult) << std::endl;
 
