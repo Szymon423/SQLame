@@ -34,7 +34,8 @@ enum class DataType {
     BOLLEAN,        // boolean - true/false
     UNIX_TIME,      // unix time value in seconds
     UNIX_TIME_MS,   // unix time value in miliseconds
-    BLOB            // bytes array
+    BLOB,           // bytes array
+    NOT_FOUND       // not found data type
 };
 
 /// @brief class which describes how collumn is structured
@@ -105,3 +106,18 @@ std::unique_ptr<CreateOperation> generate_create_operation(std::unique_ptr<Token
 /// @param token create table token
 /// @return pointer to CreateTableOperation object
 std::unique_ptr<CreateTableOperation> generate_create_table_operation(std::unique_ptr<Token>& token);
+
+/// @brief function which converts columns token to vector of column objects
+/// @param token columns token
+/// @return vector of columns
+std::vector<Column> create_columns(std::unique_ptr<Token>& token);
+
+/// @brief function which converts column token to vector of column objects
+/// @param token array element - column token
+/// @return column
+Column create_column(std::unique_ptr<Token>& token);
+
+/// @brief function which retrieves data type from token
+/// @param token with data type
+/// @return selected data type
+DataType get_data_type(std::unique_ptr<Token>& token);
