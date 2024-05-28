@@ -17,12 +17,12 @@ As name of this project suggest I want it to be `SQL'ish` - but worse. It won't 
 
 ```json
 {
-    "SELECT" : {
+    "SELECT": {
         "COLUMNS": ["id", "value", "valid"],
         "FROM": "my_table",
         "WHERE": {
             "id": {
-                "in": [123, 456],
+                "IN": [123, 456],
             }
         },
         "ORDER": {
