@@ -1,3 +1,25 @@
 {
-    "connection_port": 9191
+    "server_port": 9191,
+    "base_path": "/mnt/c/Projects/SQLame/test/",
+    "directories": {
+        "data": {
+            "metadata": {
+                "tables": {
+
+                },
+                "indexes": {
+
+                }
+            },
+            "tables": {
+
+            },
+            "logs": {
+                
+            }
+        },
+        "backups": {
+            
+        }
+    }
 }

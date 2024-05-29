@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include "tokenizer.hpp"
+#include "metadata_handler.hpp"
+#include "log.hpp"
 
 class OperationException : public std::exception {
 private:

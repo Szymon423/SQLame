@@ -2,43 +2,37 @@
 #include <vector>
 #include <memory>
 #include "log.hpp"
+#include "configuration.hpp"
 #include "directory_management.hpp"
 #include "core_requests_handler.hpp"
 #include "communication_server.hpp"
 #include "operation_generator.hpp"
 #include "tokenizer.hpp"
+#include "metadata_handler.hpp"
 
 int main() {
     Logger::init();
-
     LOG_INFO("Started SQLame Core.");
-    validate_system_directories(fs::path{"../../config/directories.json"});
+
+    fs::path configuration_path = "../../config/configuration.json";
+    Configuration::load_configuration(configuration_path);
+    validate_system_directories(configuration_path);
+
 
     CoreRequestHandler coreHandler;
     CommunicationServer server(&coreHandler, 9443);
 
-    std::vector<std::unique_ptr<Operation>> operations;
-    operations.emplace_back(std::make_unique<SelectOperation>());
-    operations.emplace_back(std::make_unique<CreateTableOperation>());
-
-    for (auto& operation : operations) {
-        LOG_TRACE("{}", operation->resolve());
-    }
-
+    // load test request
     fs::path file_path = "../../test/request.json";
     std::ifstream json_file(file_path);
 
-	// Sprawdź, czy plik został otwarty poprawnie
 	if (!json_file.is_open()) {
 		LOG_ERROR("Could not open {}.", std::string{file_path});
 		return 1;
 	}
 
-	// Parsuj plik JSON do obiektu nlohmann::json
 	json::json j;
 	json_file >> j;
-
-	// Zamknij plik
 	json_file.close();
 
     auto resoult = tokenize(j);
@@ -52,10 +46,10 @@ int main() {
         return 1;
     }
 
+    // std::cout << print_token(*resoult) << std::endl;
 
     std::cout << operation->resolve() << std::endl;
 
-    std::cout << print_token(*resoult) << std::endl;
 
     // server.start();
     // LOG_TRACE("Started communication server.");

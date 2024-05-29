@@ -1,5 +1,4 @@
 #include "operation_generator.hpp"
-#include "log.hpp"
 
 
 OperationException::OperationException(const std::string msg): message(msg) {
@@ -20,6 +19,11 @@ CreateTableOperation::CreateTableOperation() {
 }
 
 std::string CreateTableOperation::resolve() {
+    if (check_table_exists(table.name)) {
+        LOG_TRACE("Table '{}' allready exists.", table.name);
+        return "Table allready exists.";
+    }
+
     std::stringstream ss;
     ss << "Create table request\n";
     ss << "  table name: '" << table.name << "'\n";
@@ -70,9 +74,11 @@ std::unique_ptr<Operation> generate_operation(std::unique_ptr<Token>& token) {
         }
     }
     else if (child->type == TokenType::SELECT) {
+        // TODO create generate_select_operation
         // return generate_select_operation(child);
     }
     else if (child->type == TokenType::INSERT) {
+        // TODO create generate_insert_operation
         // return generate_insert_operation(child);
     }
     else {

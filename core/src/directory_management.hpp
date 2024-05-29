@@ -5,6 +5,7 @@
 #include <fstream> 
 #include <nlohmann/json.hpp>
 #include "log.hpp"
+#include "configuration.hpp"
 
 namespace fs = std::filesystem;
 namespace json = nlohmann;
@@ -24,12 +25,7 @@ bool check_path_exist(fs::path path, CheckFor target = CheckFor::FILE);
 /// @brief function which load's system configuration file from path and based on it create directories
 /// @param file_path path for JSON with configuration
 /// @return true if all went ok, false if somethong went wrong
-bool validate_system_directories(fs::path file_path);
-
-/// @brief function to create directory 
-/// @param dir_path path to directory
-/// @return true if succes, false if failure
-bool create_new_directory(fs::path dir_path);
+bool validate_system_directories(const fs::path& file_path);
 
 /// @brief function to go through entire json and create directories based on json
 /// @param j json file
