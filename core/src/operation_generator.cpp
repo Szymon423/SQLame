@@ -55,6 +55,7 @@ std::unique_ptr<Operation> generate_operation(std::unique_ptr<Token>& token) {
 
     auto& children = token->child.value();
     if (children.size() != 1) {
+        // TODO extend in fiture to handle multiple querries in single request
         throw OperationException("Request must contain only one element. To be extended in future :)");
     }
 
@@ -260,7 +261,6 @@ std::string get_label_string(std::unique_ptr<Token>& token) {
     if (!child->label.has_value()) {
         throw OperationException("No label provided.");
     }
-
     return child->label.value();
 }
 

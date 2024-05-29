@@ -105,26 +105,40 @@ public:
 /// @brief function which converts tokens tree to operation classes
 /// @param token root token of token tree
 /// @return pointer to Operation object
+/// @throws OperationException: Request is fucked up.
+/// @throws OperationException: Request is missing body.
+/// @throws OperationException: Request must contain only one element. To be extended in future :)
+/// @throws OperationException: Unsupported request operation.
 std::unique_ptr<Operation> generate_operation(std::unique_ptr<Token>& token);
 
 /// @brief function which converts create token to create operation class
 /// @param token create token
 /// @return pointer to CreateOperation object
+/// @throws OperationException: Create statement is empty.
+/// @throws OperationException: Only one element must be in create statement.
 std::unique_ptr<CreateOperation> generate_create_operation(std::unique_ptr<Token>& token);
 
 /// @brief function which converts create table token to create table operation class
 /// @param token create table token
 /// @return pointer to CreateTableOperation object
+/// @throws OperationException: Create table body is missing.
 std::unique_ptr<CreateTableOperation> generate_create_table_operation(std::unique_ptr<Token>& token);
 
 /// @brief function which converts columns token to vector of column objects
 /// @param token columns token
 /// @return vector of columns
+/// @throws OperationException: No column definitions provided.
+/// @throws OperationException: Columns definitions must be in array.
 std::vector<Column> create_columns(std::unique_ptr<Token>& token);
 
 /// @brief function which converts column token to vector of column objects
 /// @param token array element - column token
 /// @return column
+/// @throws OperationException: Collumn definition with empty body.
+/// @throws OperationException: Column definition is missing data type.
+/// @throws OperationException: Column definition contains multiple data type declarations.
+/// @throws OperationException: Data type in column definition is wrong.
+/// @throws OperationException: Unknown element in column definition.
 Column create_column(std::unique_ptr<Token>& token);
 
 /// @brief function which retrieves data type from token
@@ -140,11 +154,16 @@ std::vector<ColumnAttributes> get_column_attributes(std::unique_ptr<Token>& toke
 /// @brief function which retrieves ColumnAttributes from token
 /// @param token with ColumnAttributes
 /// @return selected ColumnAttributes
+/// @throws OperationException: Column attributes definition with empty body.
+/// @throws OperationException: Unknonw collumn attribute.
 ColumnAttributes get_column_attribute(std::unique_ptr<Token>& token);
 
 /// @brief function which retireives label from token which should have label child
 /// @param token token which should have label child
 /// @return string from label
+/// @throws OperationException: Element does not have label.
+/// @throws OperationException: Label must have only one element.
+/// @throws OperationException: No label provided.
 std::string get_label_string(std::unique_ptr<Token>& token);
 
 /// @brief function to convert DataType to string
