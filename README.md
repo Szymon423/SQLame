@@ -78,14 +78,9 @@ data/ - the main directory containing all database data.
 ### Install with vcpkg
 ```sh
 vcpkg install nlohmann-json
-```
-
-```sh
 vcpkg install spdlog
-```
-
-```sh
 vcpkg install POCO
+vcpkg install POCO[netssl]
 ```
 
 > [!NOTE] 
