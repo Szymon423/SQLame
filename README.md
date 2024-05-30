@@ -1,3 +1,6 @@
+[SQLame logo](./img/logo.png)
+
+
 # SQLame
 That's my attempt to create most Lame, and propably slowest database.
 
@@ -87,6 +90,9 @@ vcpkg install POCO
 
 > [!NOTE] 
 > Project will compile without problems if `vcpkg` is inside of this same directory as `SQLame`
-> Projects\
->   SQLame\
->   vcpkg\
+
+```plaintext
+Projects\
+├── SQLame\
+├── vcpkg\
+```
