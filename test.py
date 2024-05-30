@@ -6,7 +6,7 @@ import json
 BASE_URL = "http://localhost:9443"
 
 # Przykładowe dane do testów
-sample_table = {
+create_table = {
     "CREATE": {
         "TABLE": {
             "NAME": "MY_TABLE",
@@ -45,8 +45,17 @@ sample_table = {
     }
 }
 
+
+drop_table = {
+    "DROP" : {
+        "TABLE": {
+            "NAME": "MY_TABLE"
+        }
+    }
+}
+
 def test_create_table():
-    response = requests.post(f"{BASE_URL}", json=sample_table)
+    response = requests.post(f"{BASE_URL}", json=create_table)
     print(f"Status Code: {response.status_code}")
     assert response.status_code == 200
     print(f"Response Body: {response.text}")
@@ -54,12 +63,20 @@ def test_create_table():
     assert data["message"] == "Table MY_TABLE created succesfully"
 
 def test_table_allready_exist():
-    response = requests.post(f"{BASE_URL}", json=sample_table)
+    response = requests.post(f"{BASE_URL}", json=create_table)
     print(f"Status Code: {response.status_code}")
     assert response.status_code == 200
     print(f"Response Body: {response.text}")
     data = response.json()
     assert data["message"] == "Table allready exists."
+
+def test_drop_table_exist():
+    response = requests.post(f"{BASE_URL}", json=drop_table)
+    print(f"Status Code: {response.status_code}")
+    assert response.status_code == 200
+    print(f"Response Body: {response.text}")
+    data = response.json()
+    assert data["message"] == "Table MY_TABLE dropped succesfully."
 
 if __name__ == "__main__":
     pytest.main()

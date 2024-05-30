@@ -5,6 +5,7 @@ OperationException::OperationException(const std::string msg): message(msg) {
 
 }
 
+
 const char* OperationException::what() {
     return message.c_str();
 }
@@ -14,9 +15,11 @@ CreateOperation::CreateOperation() {
     operation_type = OperationType::CREATE;
 }
 
+
 CreateTableOperation::CreateTableOperation() {
     create_target = CreateTarget::TABLE;
 }
+
 
 std::string CreateTableOperation::resolve() {
     if (check_table_meta_exists(table.name)) {
@@ -38,8 +41,37 @@ SelectOperation::SelectOperation() {
     operation_type = OperationType::SELECT;
 }
 
+
 std::string SelectOperation::resolve() {
     return "Select operation resoult.";
+}
+
+
+DropOperation::DropOperation() {
+    operation_type = OperationType::DROP;
+}
+
+
+DropTableOperation::DropTableOperation() {
+    drop_target = DropTarget::TABLE;
+}
+
+
+std::string DropTableOperation::resolve() {
+    if (!check_table_meta_exists(table_name)) {
+        LOG_TRACE("Table '{}' does not exist.", table_name);
+        return "Table " + table_name + " does not exist.";
+    }
+    
+    // TODO delete table data, not only metadata
+
+    if (delete_table_meta(table_name)) {
+        LOG_TRACE("Table '{}' dropped succesfully.", table_name);
+        return "Table " + table_name + " dropped succesfully.";
+    }
+    
+    LOG_TRACE("Could not drop table {}.", table_name);
+    return "Could not drop table " + table_name + ".";
 }
 
 
@@ -65,6 +97,15 @@ std::unique_ptr<Operation> generate_operation(std::unique_ptr<Token>& token) {
         }
         catch (OperationException& e) {
             LOG_ERROR("Caught an exception while generating create operation: {}", e.what());
+            throw OperationException(e.what());
+        }
+    }
+    else if (child->type == TokenType::DROP) {
+        try {
+            return generate_drop_operation(child);
+        }
+        catch (OperationException& e) {
+            LOG_ERROR("Caught an exception while generating drop operation: {}", e.what());
             throw OperationException(e.what());
         }
     }
@@ -112,6 +153,7 @@ std::unique_ptr<CreateOperation> generate_create_operation(std::unique_ptr<Token
     // }
     return nullptr;
 }
+
 
 std::unique_ptr<CreateTableOperation> generate_create_table_operation(std::unique_ptr<Token>& token) {
     if (!token->child.has_value()) {
@@ -212,6 +254,7 @@ Column create_column(std::unique_ptr<Token>& token) {
     return std::move(column);
 }
 
+
 DataType get_data_type(std::unique_ptr<Token>& token) {
     if (token->type == TokenType::TEXT) return DataType::TEXT;
     if (token->type == TokenType::INT) return DataType::INT;
@@ -223,6 +266,7 @@ DataType get_data_type(std::unique_ptr<Token>& token) {
     if (token->type == TokenType::BLOB) return DataType::BLOB;
     return DataType::NOT_FOUND;
 }
+
 
 std::vector<ColumnAttributes> get_column_attributes(std::unique_ptr<Token>& token) {
     if (!token->child.has_value()) {
@@ -240,6 +284,7 @@ std::vector<ColumnAttributes> get_column_attributes(std::unique_ptr<Token>& toke
     return std::move(attributes);
 }
 
+
 ColumnAttributes get_column_attribute(std::unique_ptr<Token>& token) {
     if (token->type == TokenType::UNIQUE) return ColumnAttributes::UNIQUE;
     if (token->type == TokenType::PRIMARY_KEY) return ColumnAttributes::PRIMARY_KEY;
@@ -247,6 +292,7 @@ ColumnAttributes get_column_attribute(std::unique_ptr<Token>& token) {
     if (token->type == TokenType::NOT_NULL) return ColumnAttributes::NOT_NULL;
     return ColumnAttributes::NOT_FOUND;
 }
+
 
 std::string get_label_string(std::unique_ptr<Token>& token) {
     if (!token->child.has_value()) {
@@ -263,4 +309,63 @@ std::string get_label_string(std::unique_ptr<Token>& token) {
         throw OperationException("No label provided.");
     }
     return child->label.value();
+}
+
+
+std::unique_ptr<DropOperation> generate_drop_operation(std::unique_ptr<Token>& token) {
+    if (!token->child.has_value()) {
+        throw OperationException("Drop statement is empty."); 
+    }
+
+    auto& children = token->child.value();
+    if (children.size() != 1) {
+        throw OperationException("Only one element must be in drop statement."); 
+    }
+
+    auto& child = children.at(0);
+    if (child->type == TokenType::TABLE) {
+        try {
+            return generate_drop_table_operation(child);
+        }
+        catch (OperationException& e) {
+            LOG_ERROR("Caught an exception while generating drop table operation: {}", e.what());
+            throw OperationException(e.what());
+        }
+    }
+    
+    // if (child->type == TokenType::VIEW) {
+    //    return generate_drop_view_operation(child);
+    // }
+    // if (child->type == TokenType::TRIGGER) {
+    //    return generate_drop_trigger_operation(child);
+    // }
+
+    return nullptr;
+}
+
+
+std::unique_ptr<DropTableOperation> generate_drop_table_operation(std::unique_ptr<Token>& token) {
+    if (!token->child.has_value()) {
+        throw OperationException("Drop table body is missing."); 
+    }
+    
+    auto& children = token->child.value();
+    if (children.size() != 1) {
+        throw OperationException("Drop table operation must contain only one element with table name.");
+    }
+
+    auto& child = children.at(0);
+    if (child->type != TokenType::NAME) {
+        throw OperationException("Drop table operation must contain table name.");
+    }
+
+    std::unique_ptr<DropTableOperation> dto = std::make_unique<DropTableOperation>();
+    try {
+        dto->table_name = get_label_string(child);
+    }
+    catch (OperationException& e) {
+        throw OperationException(e.what()); 
+    }
+    
+    return dto;
 }

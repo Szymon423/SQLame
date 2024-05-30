@@ -50,7 +50,8 @@ enum class TokenType {
     INT,
     UNIX_TIME,
     UNIX_TIME_MS,
-    BLOB
+    BLOB,
+    DROP
 };
 
 class Token {

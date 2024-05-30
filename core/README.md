@@ -86,3 +86,15 @@
     }
 }
 ```
+
+### Drop
+
+```json
+{
+    "DROP" : {
+        "TABLE": {
+            "NAME": "MY_TABLE"
+        }
+    }
+}
+```

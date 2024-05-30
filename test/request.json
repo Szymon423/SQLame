@@ -1,38 +1,7 @@
 {
-    "CREATE": {
+    "DROP" : {
         "TABLE": {
-            "NAME": "MY_TABLE",
-            "COLUMNS": [
-                {
-                    "NAME": "id",
-                    "TYPE": "INT",
-                    "ATTRIBUTES": [
-                        "UNIQUE",
-                        "PRIMARY_KEY",
-                        "AUTOINCREMENT"
-                    ]
-                },
-                {
-                    "NAME": "name",
-                    "TYPE": "TEXT"
-                },
-                {
-                    "NAME": "valid",
-                    "TYPE": "BOOLEAN"
-                },
-                {
-                    "NAME": "value",
-                    "TYPE": "DOUBLE"
-                },
-                {
-                    "NAME": "timestamp",
-                    "TYPE": "UNIX_TIME"
-                },
-                {
-                    "NAME": "something",
-                    "TYPE": "BLOB"
-                }
-            ]
+            "NAME": "MY_TABLE"
         }
     }
 }

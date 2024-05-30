@@ -15,3 +15,18 @@ bool create_table_meta(const Table& table) {
     }
     return true;
 }
+
+bool delete_table_meta(const std::string& table_name) {
+    try {
+        if (fs::remove(Configuration::base_path() / fs::path("data/metadata/tables/" + table_name + ".meta"))) {
+            return true;
+        } 
+        else {
+            return false;
+        }
+    } 
+    catch (const fs::filesystem_error& e) {
+        LOG_ERROR("Could not delete file '{}', becouse of: {}", table_name, e.what());
+        return false;
+    }
+}

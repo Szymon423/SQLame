@@ -22,3 +22,8 @@ bool check_table_meta_exists(const std::string& table_name);
 /// @return true if created succesfully, false if something went wrong
 bool create_table_meta(const Table& table);
 
+/// @brief Function which deletes table metadata
+/// @param table Table object
+/// @return true if deleted succesfully, false if something went wrong
+bool delete_table_meta(const std::string& table_name);
+

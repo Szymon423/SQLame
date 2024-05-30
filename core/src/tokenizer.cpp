@@ -35,7 +35,8 @@ TokenType mapKeyToToken(const std::string& key) {
         { "DOUBLE", TokenType::DOUBLE },
         { "UNIX_TIME", TokenType::UNIX_TIME },
         { "UNIX_TIME_MS", TokenType::UNIX_TIME_MS },
-        { "BLOB", TokenType::BLOB }
+        { "BLOB", TokenType::BLOB },
+        { "DROP", TokenType::DROP }
     };
 
     auto it = keyToTokenMap.find(key);
@@ -166,7 +167,8 @@ std::string tokenTypeToString(TokenType type) {
         { TokenType::DOUBLE, "DOUBLE" },
         { TokenType::UNIX_TIME, "UNIX_TIME" },
         { TokenType::UNIX_TIME_MS, "UNIX_TIME_MS" },
-        { TokenType::BLOB, "BLOB" }
+        { TokenType::BLOB, "BLOB" },
+        { TokenType::DROP, "DROP" }
     };
 
     auto it = tokenTypeToStringMap.find(type);

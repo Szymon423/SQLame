@@ -21,7 +21,8 @@ public:
 enum class OperationType {
     CREATE,     // create operation
     SELECT,     // selection operation
-    INSERT      // insertion opration
+    INSERT,     // insertion opration
+    DROP        // insertion opration
 };
 
 /// @brief enum defining target of creation operation   
@@ -29,6 +30,13 @@ enum class CreateTarget {
     TABLE,      // creation of table
     TRIGGER,    // creation of trigger
     VIEW        // creation of view
+};
+
+/// @brief enum defining target of drop operation   
+enum class DropTarget {
+    TABLE,      // drop of table
+    TRIGGER,    // drop of trigger
+    VIEW        // drop of view
 };
 
 /// @brief base class which represents SQL operation
@@ -66,6 +74,25 @@ class SelectOperation : public Operation {
 public:
     SelectOperation();
     ~SelectOperation() = default;
+
+    std::string resolve() override;
+};
+
+/// @brief drop operation base class
+class DropOperation : public Operation {
+public:
+    DropTarget drop_target;
+
+    DropOperation();
+    ~DropOperation() = default;
+};
+
+/// @brief drop table class
+class DropTableOperation : public DropOperation {
+public:
+    std::string table_name;
+    DropTableOperation();
+    ~DropTableOperation() = default;
 
     std::string resolve() override;
 };
@@ -133,3 +160,16 @@ ColumnAttributes get_column_attribute(std::unique_ptr<Token>& token);
 /// @throws OperationException: Label must have only one element.
 /// @throws OperationException: No label provided.
 std::string get_label_string(std::unique_ptr<Token>& token);
+
+/// @brief function which converts drop token to drop operation class
+/// @param token create token
+/// @return pointer to DropOperation object
+/// @throws OperationException: Drop statement is empty.
+/// @throws OperationException: Only one element must be in Drop statement.
+std::unique_ptr<DropOperation> generate_drop_operation(std::unique_ptr<Token>& token);
+
+/// @brief function which converts drop table token to drop table operation class
+/// @param token drop table token
+/// @return pointer to DropTableOperation object
+/// @throws OperationException: Drop table body is missing.
+std::unique_ptr<DropTableOperation> generate_drop_table_operation(std::unique_ptr<Token>& token);
