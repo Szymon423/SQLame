@@ -1,16 +1,17 @@
 # SQLame
 That's my attempt to create most Lame, and propably slowest database.
 
+
 ## Idea
 Main idea is to create database engine which allows to store data. 
 
 > [!IMPORTANT] 
-> WOW AMAZING!
+> But worse.
 
-But worse.
 
 ## Connection mechanism
-I want it to provide TCP connection, by this I mean HTTPS, and rest API
+I want it to provide TCP connection, by this I mean HTTP/HTTPS, and rest API
+
 
 ## Querries
 As name of this project suggest I want it to be `SQL'ish` - but worse. It won't be pure `SQL` syntax, but `SQL` in `JSON`.
@@ -36,6 +37,7 @@ As name of this project suggest I want it to be `SQL'ish` - but worse. It won't 
 ## Management
 I want this engine to be managable from website. And here as always `Vue.js`.
 
+
 ## Data processing
 I want data to be compressed, and encrypted.
  - Compression - Zstandard
@@ -45,22 +47,23 @@ I want data to be compressed, and encrypted.
 ## File system
 
 ```plaintext
-data/ - główny katalog zawierający wszystkie dane bazy danych.
+data/ - the main directory containing all database data.
 │
-├── metadata/ - katalog zawierający pliki metadanych.
-│   ├── tables/ - katalog zawierający metadane dotyczące tabel.
-│   │   └── table_name.meta - plik metadanych dla konkretnej tabeli.
-│   └── indexes/ - katalog zawierający metadane dotyczące indeksów.
-│       └── index_name.meta - plik metadanych dla konkretnego indeksu.
+├── metadata/ - directory containing metadata files.
+│   ├── tables/ - directory containing metadata about tables.
+│   │ └── table_name.meta - metadata file for a specific table.
+│   └── indexes/ - directory containing metadata about indexes.
+│       └── index_name.meta - metadata file for a specific index.
 │
-├── tables/ - katalog zawierający dane tabel.
-│   └── table_name/ - katalog dla konkretnej tabeli.
-│       ├── data.db - plik danych przechowujący rzeczywiste rekordy tabeli.
-│       └── index_name.idx - plik indeksu dla konkretnej tabeli.
+├── tables/ - directory containing table data.
+│   └── table_name/ - directory for a specific table.
+│       ├── data.db - data file storing the actual table records.
+│       └── index_name.idx - index file for a specific table.
 │
-└── logs/ - katalog zawierający pliki logów transakcji.
-    └── log_0001.log - plik logu transakcji.
+└── logs/ - directory containing transaction log files.
+    └── log_0001.log.
 ```
+
 
 ## Dependencies
  - [nlohmann/json 3.11.3](https://github.com/nlohmann/json)
@@ -68,3 +71,22 @@ data/ - główny katalog zawierający wszystkie dane bazy danych.
  - [POCO 1.13.1](https://pocoproject.org/)
  - [zstd](https://github.com/facebook/zstd)
  - [OpenSSL](https://github.com/openssl/openssl)
+
+### Install with vcpkg
+```sh
+vcpkg install nlohmann-json
+```
+
+```sh
+vcpkg install spdlog
+```
+
+```sh
+vcpkg install POCO
+```
+
+> [!NOTE] 
+> Project will compile without problems if `vcpkg` is inside of this same directory as `SQLame`
+> Projects\
+>   SQLame\
+>   vcpkg\

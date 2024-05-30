@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(CMAKE_TOOLCHAIN_FILE /mnt/c/Projects/vcpkg/scripts/buildsystems/vcpkg.cmake CACHE STRING "")
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/../../vcpkg/scripts/buildsystems/vcpkg.cmake CACHE STRING "")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(COMMUNICATION_LIB   ${CMAKE_SOURCE_DIR}/../communication/build/${CMAKE_BUILD_TYPE}/src/libcommunication.so)
