@@ -2,9 +2,11 @@
 
 #include <vector>
 #include <string>
+#include "log.hpp"
 #include "tokenizer.hpp"
 #include "metadata_handler.hpp"
-#include "log.hpp"
+#include "database_definitions.hpp"
+
 
 class OperationException : public std::exception {
 private:
@@ -27,42 +29,6 @@ enum class CreateTarget {
     TABLE,      // creation of table
     TRIGGER,    // creation of trigger
     VIEW        // creation of view
-};
-
-/// @brief enum with allowed collumn attributes
-enum class ColumnAttributes {
-    UNIQUE,         // value in collumn must be unique
-    PRIMARY_KEY,    // value in collumn is primary key
-    AUTOINCREMENT,  // value in collumn when it's primmary key is automaticly incremented
-    NOT_NULL,       // value can not be null
-    NOT_FOUND       // not found data type
-};
-
-/// @brief enum with allowed data types in collumn
-enum class DataType {
-    INT,            // signed integer 64-bit
-    DOUBLE,         // double 64-bit
-    TEXT,           // text/string
-    BOOLEAN,        // boolean - true/false
-    UNIX_TIME,      // unix time value in seconds
-    UNIX_TIME_MS,   // unix time value in miliseconds
-    BLOB,           // bytes array
-    NOT_FOUND       // not found data type
-};
-
-/// @brief class which describes how collumn is structured
-class Column {
-public:
-    std::vector<ColumnAttributes> atributes; 
-    DataType data_type;
-    std::string name;
-};
-
-/// @brief class which describes how table is structured
-class Table {
-public:
-    std::string name;
-    std::vector<Column> columns;
 };
 
 /// @brief base class which represents SQL operation
@@ -167,13 +133,3 @@ ColumnAttributes get_column_attribute(std::unique_ptr<Token>& token);
 /// @throws OperationException: Label must have only one element.
 /// @throws OperationException: No label provided.
 std::string get_label_string(std::unique_ptr<Token>& token);
-
-/// @brief function to convert DataType to string
-/// @param dt data type
-/// @return string representation of DataType
-std::string DataType_to_string(const DataType& dt);
-
-/// @brief function to convert ColumnAttributes to string
-/// @param ca collumn attribute
-/// @return string representation of ColumnAttributes
-std::string ColumnAttributes_to_string(const ColumnAttributes& ca);

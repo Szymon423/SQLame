@@ -9,33 +9,28 @@ const char* OperationException::what() {
     return message.c_str();
 }
 
+
 CreateOperation::CreateOperation() {
     operation_type = OperationType::CREATE;
 }
-
 
 CreateTableOperation::CreateTableOperation() {
     create_target = CreateTarget::TABLE;
 }
 
 std::string CreateTableOperation::resolve() {
-    if (check_table_exists(table.name)) {
+    if (check_table_meta_exists(table.name)) {
         LOG_TRACE("Table '{}' allready exists.", table.name);
         return "Table allready exists.";
     }
-
-    std::stringstream ss;
-    ss << "Create table request\n";
-    ss << "  table name: '" << table.name << "'\n";
-    for (auto& col: table.columns) {
-        ss << "    column: '" << col.name << "'\n";
-        ss << "       attributes: \n";
-        for (auto& atr: col.atributes) {
-            ss << "        " << ColumnAttributes_to_string(atr) << "\n";
-        }
-        ss << "      data type: " << DataType_to_string(col.data_type) << "\n";
+    
+    if (create_table_meta(table)) {
+        LOG_TRACE("Table '{}' created succesfully.", table.name);
+        return "Table " + table.name + " created succesfully";
     }
-    return ss.str();
+    
+    LOG_TRACE("Could not create table {}.", table.name);
+    return "Could not create table " + table.name;
 }
 
 
@@ -203,7 +198,7 @@ Column create_column(std::unique_ptr<Token>& token) {
         }
         else if (item->type == TokenType::ATTRIBUTES) {
             try {
-                column.atributes = get_column_attributes(item);
+                column.attributes = get_column_attributes(item);
             }
             catch (OperationException& e) {
                 LOG_ERROR("Caught an exception while getting column attributes: {}", e.what());
@@ -234,15 +229,15 @@ std::vector<ColumnAttributes> get_column_attributes(std::unique_ptr<Token>& toke
         throw OperationException("Column attributes definition with empty body."); 
     }
 
-    std::vector<ColumnAttributes> atributes;
+    std::vector<ColumnAttributes> attributes;
     for (auto& item: token->child.value()) {
         auto atr = get_column_attribute(item);
         if (atr == ColumnAttributes::NOT_FOUND) {
             throw OperationException("Unknonw collumn attribute."); 
         }
-        atributes.push_back(std::move(atr));
+        attributes.push_back(std::move(atr));
     }
-    return std::move(atributes);
+    return std::move(attributes);
 }
 
 ColumnAttributes get_column_attribute(std::unique_ptr<Token>& token) {
@@ -268,29 +263,4 @@ std::string get_label_string(std::unique_ptr<Token>& token) {
         throw OperationException("No label provided.");
     }
     return child->label.value();
-}
-
-std::string DataType_to_string(const DataType& dt) {
-    switch (dt) {
-        case DataType::INT: return "INT";
-        case DataType::DOUBLE: return "DOUBLE";
-        case DataType::TEXT: return "TEXT";
-        case DataType::BOOLEAN: return "BOOLEAN";
-        case DataType::UNIX_TIME: return "UNIX_TIME";
-        case DataType::UNIX_TIME_MS: return "UNIX_TIME_MS";
-        case DataType::BLOB: return "BLOB";
-        case DataType::NOT_FOUND: return "NOT_FOUND";
-        default: "Something went wrong";
-    }
-}
-
-std::string ColumnAttributes_to_string(const ColumnAttributes& ca) {
-    switch (ca) {
-        case ColumnAttributes::UNIQUE: return "UNIQUE";
-        case ColumnAttributes::PRIMARY_KEY: return "PRIMARY_KEY";
-        case ColumnAttributes::AUTOINCREMENT: return "AUTOINCREMENT";
-        case ColumnAttributes::NOT_NULL: return "NOT_NULL";
-        case ColumnAttributes::NOT_FOUND: return "NOT_FOUND";
-        default: "Something went wrong";
-    }
 }
