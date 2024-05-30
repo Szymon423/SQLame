@@ -1,6 +1,19 @@
 #include "core_requests_handler.hpp"
 
 std::string CoreRequestHandler::handleRequest(const std::string& request) {
-    std::string response = "{\"message\": \"Request processed successfully\"}";
-    return response;
+
+    json::json j = json::json::parse(request);
+
+    auto token = tokenize(j);
+
+    std::unique_ptr<Operation> operation = nullptr;
+    try {
+        operation = generate_operation(token);
+    }
+    catch (OperationException& e) {
+        LOG_ERROR("Caught an exception: {}", e.what());
+        return std::string{ "{\"message\": \"Error resolving request: " } + e.what() + "\"}";
+    }
+
+    return std::string{ "{\"message\": \"" } + operation->resolve() + "\"}";
 }

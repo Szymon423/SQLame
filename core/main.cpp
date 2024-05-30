@@ -51,10 +51,10 @@ int main() {
     std::cout << operation->resolve() << std::endl;
 
 
-    // server.start();
-    // LOG_TRACE("Started communication server.");
-    // std::cin.get();
+    server.start();
+    LOG_TRACE("Started communication server.");
+    std::cin.get();
 
-    // LOG_TRACE("Stopping communication server.");
-    // server.stop();
+    LOG_TRACE("Stopping communication server.");
+    server.stop();
 }

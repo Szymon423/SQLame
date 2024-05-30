@@ -1,6 +1,15 @@
 #pragma once
 
 #include "communication_requests_handler.hpp"
+#include "tokenizer.hpp"
+#include "operation_generator.hpp"
+#include "log.hpp"
+
+#include <nlohmann/json.hpp>
+#include <iostream>
+#include <string>
+
+namespace json = nlohmann;
 
 /// @brief class for handling all requests based on IRequestHandler interface
 class CoreRequestHandler : public IRequestHandler {

@@ -5,3 +5,7 @@ management/build
 transaction/build
 build
 test
+
+__pycache__
+.pytest_cache
+.vscode
