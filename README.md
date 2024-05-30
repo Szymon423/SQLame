@@ -1,4 +1,4 @@
-[SQLame logo](./img/logo.png)
+![SQLame logo](./img/logo.png)
 
 
 # SQLame
