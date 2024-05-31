@@ -71,7 +71,7 @@ public:
     /// @brief Function which returns child with wanted type
     /// @param type wanted type
     /// @return found child or nullptr when did not found child with proper type
-    std::unique_ptr<Token> get_child(TokenType type);
+    std::unique_ptr<Token>* get_child(TokenType type);
 
     /// @brief Function which tells how many children does token has
     /// @return number of childred of token, or -1 when children are not present

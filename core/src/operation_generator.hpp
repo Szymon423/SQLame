@@ -15,7 +15,8 @@ private:
 
 public:
     OperationException(const std::string msg);
-    const char* what ();
+    // const char* what ();
+    const std::string what ();
 };
 
 /// @brief enum defining oprtation type
@@ -210,15 +211,15 @@ std::unique_ptr<DropTableOperation> generate_drop_table_operation(std::unique_pt
 /// @throws OperationException: Insert querry has unwanted objects.
 std::unique_ptr<InsertOperation> generate_insert_operation(std::unique_ptr<Token>& token);
 
-/// @brief function which converts column token to vector of column objects
-/// @param token array element - row token
-/// @return row
-/// @throws OperationException: 
-Row get_row(std::unique_ptr<Token>& token);
-
 /// @brief function which converts row values token to vector of row objects
 /// @param token rows token
 /// @return vector of rows
 /// @throws OperationException: No row definitions provided.
 /// @throws OperationException: Row values definitions must be in array.
-std::vector<Row> get_rows(std::unique_ptr<Token>& token);
+std::vector<Row> get_rows(std::unique_ptr<Token>& token, const std::vector<Column>& columns);
+
+/// @brief function which converts column token to vector of column objects
+/// @param token array element - row token
+/// @return row
+/// @throws OperationException: 
+Row get_row(std::unique_ptr<Token>& token, const std::vector<Column>& columns);

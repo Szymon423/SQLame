@@ -4,8 +4,11 @@ UtilitiesException::UtilitiesException(const std::string msg): message(msg) {
 
 }
 
-const char* UtilitiesException::what() {
-    return message.c_str();
+// const char* UtilitiesException::what() {
+//     return message.c_str();
+// }
+const std::string UtilitiesException::what() {
+    return message;
 }
 
 void save_json_to_file(const fs::path& path, const json::json& j) {

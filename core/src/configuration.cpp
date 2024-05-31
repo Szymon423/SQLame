@@ -3,11 +3,11 @@
 fs::path Configuration::_base_path;
 int Configuration::_server_port;
 
-const fs::path Configuration::base_path() {
+fs::path Configuration::base_path() {
     return _base_path;
 }
 
-const int Configuration::server_port() {
+int Configuration::server_port() {
     return _server_port;
 }
 

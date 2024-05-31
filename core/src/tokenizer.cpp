@@ -17,14 +17,14 @@ bool Token::has_child(TokenType type) {
 }
 
 
-std::unique_ptr<Token> Token::get_child(TokenType type) {
+std::unique_ptr<Token>* Token::get_child(TokenType type) {
     if (!children.has_value()) {
         return nullptr;
     }
 
     for (auto& item: children.value()) {
         if (item->type == type) {
-            return item;
+            return &item;
         }
     }
 

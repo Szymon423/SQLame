@@ -6,10 +6,12 @@ OperationException::OperationException(const std::string msg): message(msg) {
 }
 
 
-const char* OperationException::what() {
-    return message.c_str();
+// const char* OperationException::what() {
+//     return message.c_str();
+// }
+const std::string OperationException::what() {
+    return message;
 }
-
 
 CreateOperation::CreateOperation() {
     operation_type = OperationType::CREATE;
@@ -89,7 +91,9 @@ std::string InsertOperation::resolve() {
     // TODO here it must insert values into table_name.db
     for (auto& row: rows) {
         LOG_TRACE("Data in row: ");
-        std::visit(VisitInsertRowItem(), row);
+        for (auto& element: row) {
+            std::visit(VisitInsertRowItem(), element);
+        }
     }
     
     LOG_TRACE("Could not insert values into table {}.", table.name);
@@ -218,7 +222,8 @@ std::unique_ptr<CreateTableOperation> generate_create_table_operation(std::uniqu
     std::unique_ptr<CreateTableOperation> cto = std::make_unique<CreateTableOperation>();
 
     try {
-        cto->table.name = get_label_string(token->get_child(TokenType::NAME));
+        auto child = token->get_child(TokenType::NAME);
+        cto->table.name = get_label_string(*child);
     }
     catch (OperationException& e) {
         LOG_ERROR("Caught an exception while creating table name: {}", e.what());
@@ -226,7 +231,8 @@ std::unique_ptr<CreateTableOperation> generate_create_table_operation(std::uniqu
     }
 
     try {
-        cto->table.columns = create_columns(token->get_child(TokenType::COLUMNS));
+        auto child = token->get_child(TokenType::COLUMNS);
+        cto->table.columns = create_columns(*child);
     }
     catch (OperationException& e) {
         LOG_ERROR("Caught an exception while creating columns: {}", e.what());
@@ -247,14 +253,21 @@ std::vector<Column> create_columns(std::unique_ptr<Token>& token) {
         if (array_element->type != TokenType::ARRAY_ELEMENT) {
             throw OperationException("Columns definitions must be in array."); 
         }
+        Column col;
         try {
-            auto col = create_column(array_element);
-            columns.push_back(std::move(col));
+            col = create_column(array_element);
+
         }
         catch (OperationException& e) {
             LOG_ERROR("Caught an exception while creating column: {}", e.what());
             throw OperationException(e.what());
         }
+        for (auto& c: columns) {
+            if (col.name == c.name) {
+                throw OperationException("Each column must have unique name."); 
+            }
+        }
+        columns.push_back(std::move(col));
     }
     return std::move(columns);
 }
@@ -275,14 +288,16 @@ Column create_column(std::unique_ptr<Token>& token) {
 
     Column column;
     try {
-        column.name = get_label_string(token->get_child(TokenType::NAME));
+        auto child = token->get_child(TokenType::NAME);
+        column.name = get_label_string(*child);
     }
     catch (OperationException& e) {
         throw OperationException(e.what()); 
     }
 
     try {
-        column.data_type = get_data_type(token->get_child(TokenType::TYPE));
+        auto child = token->get_child(TokenType::TYPE);
+        column.data_type = get_data_type(*child);
     }
     catch (OperationException& e) {
         throw OperationException(e.what()); 
@@ -290,7 +305,8 @@ Column create_column(std::unique_ptr<Token>& token) {
 
     if (token->has_child(TokenType::ATTRIBUTES)) {
         try {
-            column.attributes = get_column_attributes(token->get_child(TokenType::ATTRIBUTES));
+            auto child = token->get_child(TokenType::ATTRIBUTES);
+            column.attributes = get_column_attributes(*child);
         }
         catch (OperationException& e) {
             LOG_ERROR("Caught an exception while getting column attributes: {}", e.what());
@@ -364,12 +380,12 @@ std::string get_label_string(std::unique_ptr<Token>& token) {
         throw OperationException("Element with label is missing label.");
     }
 
-    auto& child = token->get_child(TokenType::LABEL);
+    auto child = token->get_child(TokenType::LABEL);
 
-    if (!child->label.has_value()) {
+    if (!(*child)->label.has_value()) {
         throw OperationException("No label provided.");
     }
-    return child->label.value();
+    return (*child)->label.value();
 }
 
 
@@ -384,7 +400,8 @@ std::unique_ptr<DropOperation> generate_drop_operation(std::unique_ptr<Token>& t
 
     if (token->has_child(TokenType::TABLE)) {
         try {
-            return generate_drop_table_operation(token->get_child(TokenType::TABLE));
+            auto child = token->get_child(TokenType::TABLE);
+            return generate_drop_table_operation(*child);
         }
         catch (OperationException& e) {
             LOG_ERROR("Caught an exception while generating drop table operation: {}", e.what());
@@ -431,7 +448,8 @@ std::unique_ptr<DropTableOperation> generate_drop_table_operation(std::unique_pt
     
     std::unique_ptr<DropTableOperation> dto = std::make_unique<DropTableOperation>();
     try {
-        dto->table.name = get_label_string(token->get_child(TokenType::NAME));
+        auto child = token->get_child(TokenType::NAME);
+        dto->table_name = get_label_string(*child);
     }
     catch (OperationException& e) {
         throw OperationException(e.what()); 
@@ -458,30 +476,32 @@ std::unique_ptr<InsertOperation> generate_insert_operation(std::unique_ptr<Token
         throw OperationException("Insert querry has unwanted objects.");
     }
 
-    std::unique_ptr<InsertOperation> io = std::make_unique<InsertOperation>();
+    std::string table_name;
     try {
-        io->table.name = get_label_string(token->get_child(TokenType::INTO));
+        auto child = token->get_child(TokenType::INTO);
+        table_name = get_label_string(*child);
     }
     catch (OperationException& e) {
         throw OperationException(e.what()); 
     }
-        
+
+    if (!check_table_meta_exists(table_name)) {
+        throw OperationException("Can not insert becouse table '" + table_name + "' does not exist.");
+    }
+
+    std::unique_ptr<InsertOperation> io = std::make_unique<InsertOperation>();
+    try {
+        io->table = load_table_from_meta(table_name);
+    }
+    catch (MetadataException& e) {
+        throw OperationException(e.what()); 
+    }
+
     return io;
 }
 
 
-Row get_row(std::unique_ptr<Token>& token) {
-    if (!token->children.has_value()) {
-        throw OperationException("Row value definition with empty body."); 
-    }
-
-    Row row;
-    
-    return row;
-}
-
-
-std::vector<Row> get_rows(std::unique_ptr<Token>& token) {
+std::vector<Row> get_rows(std::unique_ptr<Token>& token, const std::vector<Column>& columns) {
     if (!token->children.has_value()) {
         throw OperationException("No row definitions provided."); 
     }
@@ -492,8 +512,8 @@ std::vector<Row> get_rows(std::unique_ptr<Token>& token) {
             throw OperationException("Row Values definitions must be in array."); 
         }
         try {
-            auto row = get_row(array_element);
-            columns.push_back(std::move(col));
+            auto row = get_row(array_element, columns);
+            rows.push_back(std::move(row));
         }
         catch (OperationException& e) {
             LOG_ERROR("Caught an exception while creating row: {}", e.what());
@@ -501,4 +521,72 @@ std::vector<Row> get_rows(std::unique_ptr<Token>& token) {
         }
     }
     return rows;
+}
+
+
+Row get_row(std::unique_ptr<Token>& token, const std::vector<Column>& columns) {
+    if (!token->children.has_value()) {
+        throw OperationException("Row value definition with empty body."); 
+    }
+
+    Row row;
+    auto& row_elements = token->children.value();
+    for (auto& element: row_elements) {
+        if (element->type != TokenType::LABEL) {
+            throw OperationException("Not allowed element in row.");
+        }
+
+        if (!element->label.has_value()) {
+            throw OperationException("Column label is missing.");
+        }
+
+        if (!element->children.has_value()) {
+            throw OperationException("No value associated with column name.");
+        }
+
+        if (element->get_children_number() != 1) {
+            throw OperationException("Only one value can be associated with column name.");
+        }
+
+        std::string column_name = element->label.value();
+
+        DataType column_dt = DataType::NOT_FOUND;
+        for (auto& col: columns) {
+            if (column_name == col.name) {
+                column_dt = col.data_type;
+                break;
+            }
+        }
+
+        if (column_dt == DataType::NOT_FOUND) {
+            throw OperationException("Could not find column with provided name.");
+        }
+
+        auto& child = element->children.value().at(0);
+        switch (column_dt) {
+            case DataType::BOOLEAN: {
+                if (!child->value_boolean.has_value()) {
+                    throw OperationException("Data type (BOOLEAN) of column '" + column_name + "' does not match witch provided data type.");
+                }
+                row.push_back(child->value_boolean.value());
+                break;
+            }
+            case DataType::DOUBLE: {
+                if (!child->value_number.has_value()) {
+                    throw OperationException("Data type (DOUBLE) of column '" + column_name + "' does not match witch provided data type.");
+                }
+                row.push_back(child->value_number.value());
+                break;
+            }
+            case DataType::TEXT: {
+                if (!child->label.has_value()) {
+                    throw OperationException("Data type (TEXT) of column '" + column_name + "' does not match witch provided data type.");
+                }
+                row.push_back(child->label.value());
+                break;
+            }
+        }
+    }
+    
+    return row;
 }

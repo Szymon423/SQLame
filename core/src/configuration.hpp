@@ -14,11 +14,11 @@ public:
     
     /// @brief Function which contains base path
     /// @return Base path
-    static const fs::path base_path();
+    static fs::path base_path();
     
     /// @brief Function which contains server port
     /// @return Server port
-    static const int server_port();
+    static int server_port();
 
     /// @brief Function which loads configuration from configuration.json
     /// @param path path to configuration.json

@@ -14,7 +14,8 @@ private:
 
 public:
     UtilitiesException(const std::string msg);
-    const char* what ();
+    // const char* what ();
+    const std::string what ();
 };
 
 /// @brief Function which saves JSON data to file
