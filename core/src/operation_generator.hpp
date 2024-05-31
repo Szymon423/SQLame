@@ -116,7 +116,10 @@ public:
 
 /// @brief visitor to acces each possible element in row
 class VisitInsertRowItem {
+private:
+    std::vector<uint8_t>& byte_vector;
 public:
+    VisitInsertRowItem(std::vector<uint8_t>& byte_vector);
     void operator()(bool& value);
     void operator()(double& value);
     void operator()(std::string& value);

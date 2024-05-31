@@ -89,11 +89,19 @@ std::string InsertOperation::resolve() {
     }
 
     // TODO here it must insert values into table_name.db
+    std::vector<uint8_t> byte_vector;
     for (auto& row: rows) {
         LOG_TRACE("Data in row: ");
         for (auto& element: row) {
-            std::visit(VisitInsertRowItem(), element);
+            std::visit(VisitInsertRowItem(byte_vector), element);
         }
+    }
+    try {
+        save_to_file(byte_vector, Configuration::base_path() / fs::path{ "data/tables/" + table.name + ".db" });
+    }
+    catch(UtilitiesException& e) {
+        LOG_ERROR("Insert values into table '{}' failed becouse of '{}'.", table.name, e.what());
+        return "Insert values into table '" + table.name + "' failed becouse of '" + e.what() + "'.";
     }
     
     LOG_TRACE("Inserted values into table '{}'.", table.name);
@@ -101,27 +109,40 @@ std::string InsertOperation::resolve() {
 }
 
 
+VisitInsertRowItem::VisitInsertRowItem(std::vector<uint8_t>& byte_vector) : byte_vector(byte_vector) {
+
+}
+
 void VisitInsertRowItem::operator()(bool& value) {
+    byte_vector.push_back(static_cast<uint8_t>(value));
     LOG_TRACE(" > bool value: {}", value);
 }
 
 
 void VisitInsertRowItem::operator()(double& value) {
+    uint8_t* ptr = reinterpret_cast<uint8_t*>(&value);
+    byte_vector.insert(byte_vector.end(), ptr, ptr + sizeof(double));
     LOG_TRACE(" > double value: {}", value);
 }
 
 
 void VisitInsertRowItem::operator()(std::string& value) {
+    byte_vector.insert(byte_vector.end(), value.begin(), value.end());
+    byte_vector.push_back('\0');
     LOG_TRACE(" > std::string value: {}", value);
 }
 
 
 void VisitInsertRowItem::operator()(uint64_t& value) {
+    uint8_t* ptr = reinterpret_cast<uint8_t*>(&value);
+    byte_vector.insert(byte_vector.end(), ptr, ptr + sizeof(uint64_t));
     LOG_TRACE(" > uint64_t value: {}", value);
 }
 
 
 void VisitInsertRowItem::operator()(int64_t& value) {
+    uint8_t* ptr = reinterpret_cast<uint8_t*>(&value);
+    byte_vector.insert(byte_vector.end(), ptr, ptr + sizeof(int64_t));
     LOG_TRACE(" > int64_t value: {}", value);
 }
 
