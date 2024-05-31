@@ -85,7 +85,7 @@ InsertOperation::InsertOperation() {
 std::string InsertOperation::resolve() {
     if (!check_table_meta_exists(table.name)) {
         LOG_TRACE("Table '{}' does not exist.", table.name);
-        return "Table " + table.name + " does not exist.";
+        return "Table '" + table.name + "' does not exist.";
     }
 
     // TODO here it must insert values into table_name.db
@@ -96,8 +96,8 @@ std::string InsertOperation::resolve() {
         }
     }
     
-    LOG_TRACE("Could not insert values into table {}.", table.name);
-    return "Could not insert values into table " + table.name + ".";
+    LOG_TRACE("Inserted values into table '{}'.", table.name);
+    return "Inserted values into table '" + table.name + "'.";
 }
 
 
@@ -118,6 +118,11 @@ void VisitInsertRowItem::operator()(std::string& value) {
 
 void VisitInsertRowItem::operator()(uint64_t& value) {
     LOG_TRACE(" > uint64_t value: {}", value);
+}
+
+
+void VisitInsertRowItem::operator()(int64_t& value) {
+    LOG_TRACE(" > int64_t value: {}", value);
 }
 
 
@@ -269,7 +274,7 @@ std::vector<Column> create_columns(std::unique_ptr<Token>& token) {
         }
         columns.push_back(std::move(col));
     }
-    return std::move(columns);
+    return columns;
 }
 
 
@@ -329,6 +334,7 @@ DataType get_data_type(std::unique_ptr<Token>& token) {
 
     auto& child = token->children.value().at(0);
 
+    if (child->type == TokenType::NUMBER) return DataType::NUMBER;
     if (child->type == TokenType::TEXT) return DataType::TEXT;
     if (child->type == TokenType::INT) return DataType::INT;
     if (child->type == TokenType::DOUBLE) return DataType::DOUBLE;
@@ -354,7 +360,7 @@ std::vector<ColumnAttributes> get_column_attributes(std::unique_ptr<Token>& toke
         }
         attributes.push_back(std::move(atr));
     }
-    return std::move(attributes);
+    return attributes;
 }
 
 
@@ -497,6 +503,14 @@ std::unique_ptr<InsertOperation> generate_insert_operation(std::unique_ptr<Token
         throw OperationException(e.what()); 
     }
 
+    try {
+        auto child = token->get_child(TokenType::VALUES);
+        io->rows = get_rows(*child, io->table.columns);
+    }
+    catch (MetadataException& e) {
+        throw OperationException(e.what()); 
+    }
+
     return io;
 }
 
@@ -558,6 +572,7 @@ Row get_row(std::unique_ptr<Token>& token, const std::vector<Column>& columns) {
             }
         }
 
+        // TODO here resolve TokenType::NUMBER 
         if (column_dt == DataType::NOT_FOUND) {
             throw OperationException("Could not find column with provided name.");
         }
@@ -572,10 +587,10 @@ Row get_row(std::unique_ptr<Token>& token, const std::vector<Column>& columns) {
                 break;
             }
             case DataType::DOUBLE: {
-                if (!child->value_number.has_value()) {
+                if (!child->value_double.has_value()) {
                     throw OperationException("Data type (DOUBLE) of column '" + column_name + "' does not match witch provided data type.");
                 }
-                row.push_back(child->value_number.value());
+                row.push_back(child->value_double.value());
                 break;
             }
             case DataType::TEXT: {
@@ -585,6 +600,21 @@ Row get_row(std::unique_ptr<Token>& token, const std::vector<Column>& columns) {
                 row.push_back(child->label.value());
                 break;
             }
+            case DataType::INT: {
+                if (!child->value_int.has_value()) {
+                    throw OperationException("Data type (INT) of column '" + column_name + "' does not match witch provided data type.");
+                }
+                row.push_back(child->value_int.value());
+                break;
+            }
+            case DataType::UNIX_TIME: {
+                if (!child->value_unix_time.has_value()) {
+                    throw OperationException("Data type (INT) of column '" + column_name + "' does not match witch provided data type.");
+                }
+                row.push_back(child->value_unix_time.value());
+                break;
+            }
+            // TODO add not listed above datatypes
         }
     }
     

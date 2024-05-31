@@ -33,6 +33,7 @@ ColumnAttributes ColumnAttributes_from_string(const std::string& ca);
 
 /// @brief enum with allowed data types in collumn
 enum class DataType {
+    NUMBER,         // type under which can be INT, DOUBLE, UNIX_TIME, UNIX_TIME_MS
     INT,            // signed integer 64-bit
     DOUBLE,         // double 64-bit
     TEXT,           // text/string

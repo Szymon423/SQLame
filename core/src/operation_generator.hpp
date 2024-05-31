@@ -100,7 +100,7 @@ public:
 };
 
 /// @brief row definition with possible data_types
-using Row = std::vector<std::variant<bool, double, std::string, uint64_t>>;
+using Row = std::vector<std::variant<bool, double, std::string, uint64_t, int64_t>>;
 
 /// @brief select operation class
 class InsertOperation : public Operation {
@@ -121,6 +121,7 @@ public:
     void operator()(double& value);
     void operator()(std::string& value);
     void operator()(uint64_t& value);
+    void operator()(int64_t& value);
 };
 
 /// @brief function which converts tokens tree to operation classes

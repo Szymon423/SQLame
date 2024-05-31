@@ -40,17 +40,16 @@ enum class TokenType {
     DESCENDING,
     REQUEST,
     ARRAY_ELEMENT,
-    VALUE_NUMBER,
-    VALUE_BOOLEAN,
-    LABEL,
-    UNKNOWN,
-    TEXT,
+    NUMBER,
     BOOLEAN,
-    DOUBLE,
     INT,
+    DOUBLE,
+    TEXT,
     UNIX_TIME,
     UNIX_TIME_MS,
     BLOB,
+    UNKNOWN,
+    LABEL,
     DROP,
     VALUES
 };
@@ -59,7 +58,9 @@ class Token {
 public:
     TokenType type;
     std::optional<std::string> label;
-    std::optional<double> value_number;
+    std::optional<double> value_double;
+    std::optional<int64_t> value_int;
+    std::optional<uint64_t> value_unix_time;
     std::optional<bool> value_boolean;
     std::optional<std::vector<std::unique_ptr<Token>>> children;
 

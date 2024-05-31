@@ -109,7 +109,7 @@
             {
                 "id": 0,
                 "name": "test-name-0",
-                "valid": true,
+                "valid": True,
                 "value": 123.4,
                 "timestamp": 1717159918,
                 "something": 0,
@@ -117,7 +117,7 @@
             {
                 "id": 1,
                 "name": "test-name-1",
-                "valid": true,
+                "valid": True,
                 "value": 0.456,
                 "timestamp": 1717159919,
                 "something": 0,

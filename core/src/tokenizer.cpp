@@ -125,12 +125,14 @@ void iterate_through_request(const json::json& j, std::unique_ptr<Token>& t) {
                 }
             } 
             else if (j.is_boolean()) {
-                t->type = TokenType::VALUE_BOOLEAN;
+                t->type = TokenType::BOOLEAN;
                 t->value_boolean = j.get<bool>();
             } 
             else if (j.is_number()) {
-                t->type = TokenType::VALUE_NUMBER;
-                t->value_number = j.get<double>();
+                token->type = TokenType::NUMBER;
+                token->value_double = j.get<double>();
+                token->value_int = j.get<int>();
+                token->value_unix_time = j.get<uint64_t>();
             } 
             else {
                 t->type = TokenType::UNKNOWN;
@@ -145,12 +147,14 @@ void iterate_through_request(const json::json& j, std::unique_ptr<Token>& t) {
             }
         } 
         else if (j.is_boolean()) {
-            token->type = TokenType::VALUE_BOOLEAN;
+            token->type = TokenType::BOOLEAN;
             token->value_boolean = j.get<bool>();
         } 
         else if (j.is_number()) {
-            token->type = TokenType::VALUE_NUMBER;
-            token->value_number = j.get<double>();
+            token->type = TokenType::NUMBER;
+            token->value_double = j.get<double>();
+            token->value_int = j.get<int>();
+            token->value_unix_time = j.get<uint64_t>();
         } 
         else {
             token->type = TokenType::UNKNOWN;
@@ -202,8 +206,7 @@ std::string tokenTypeToString(TokenType type) {
         { TokenType::DESCENDING, "DESCENDING" },
         { TokenType::LABEL, "LABEL" },
         { TokenType::ARRAY_ELEMENT, "ARRAY_ELEMENT" },
-        { TokenType::VALUE_NUMBER, "VALUE_NUMBER" },
-        { TokenType::VALUE_BOOLEAN, "VALUE_BOOLEAN" },
+        { TokenType::DOUBLE, "DOUBLE" },
         { TokenType::UNKNOWN, "UNKNOWN" },
         { TokenType::TEXT, "TEXT" },
         { TokenType::INT, "INT" },
@@ -213,7 +216,8 @@ std::string tokenTypeToString(TokenType type) {
         { TokenType::UNIX_TIME_MS, "UNIX_TIME_MS" },
         { TokenType::BLOB, "BLOB" },
         { TokenType::DROP, "DROP" },
-        { TokenType::VALUES, "VALUES" }
+        { TokenType::VALUES, "VALUES" },
+        { TokenType::NUMBER, "NUMBER" }
     };
 
     auto it = tokenTypeToStringMap.find(type);
@@ -233,8 +237,8 @@ std::string print_token(const Token& t, int depth) {
     if (t.label) {
         oss << " '" << *t.label << "'";
     }
-    if (t.value_number) {
-        oss << " " << *t.value_number;
+    if (t.value_double) {
+        oss << " " << *t.value_double;
     }
     if (t.value_boolean) {
         oss << " " << (*t.value_boolean ? "true" : "false");

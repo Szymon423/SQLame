@@ -6,6 +6,8 @@ std::string CoreRequestHandler::handleRequest(const std::string& request) {
 
     auto token = tokenize(j);
 
+    LOG_TRACE("{}", print_token(*token));
+
     std::unique_ptr<Operation> operation = nullptr;
     try {
         operation = generate_operation(token);
