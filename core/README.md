@@ -98,3 +98,31 @@
     }
 }
 ```
+
+### Insert
+
+```json
+{
+    "INSERT" : {
+        "INTO": "my_table",
+        "VALUES": [
+            {
+                "id": 0,
+                "name": "test-name-0",
+                "valid": true,
+                "value": 123.4,
+                "timestamp": 1717159918,
+                "something": 0,
+            },
+            {
+                "id": 1,
+                "name": "test-name-1",
+                "valid": true,
+                "value": 0.456,
+                "timestamp": 1717159919,
+                "something": 0,
+            }    
+        ]
+    }
+}
+```

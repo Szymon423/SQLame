@@ -1,6 +1,46 @@
 #include "tokenizer.hpp"
 #include <sstream>
 
+
+bool Token::has_child(TokenType type) {
+    if (!children.has_value()) {
+        return false;
+    }
+
+    for (auto& item: children.value()) {
+        if (item->type == type) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+std::unique_ptr<Token> Token::get_child(TokenType type) {
+    if (!children.has_value()) {
+        return nullptr;
+    }
+
+    for (auto& item: children.value()) {
+        if (item->type == type) {
+            return item;
+        }
+    }
+
+    return nullptr;
+}
+
+
+int Token::get_children_number() {
+    if (!children.has_value()) {
+        return -1;
+    }
+
+    return children.value().size();
+}
+
+
 TokenType mapKeyToToken(const std::string& key) {
     static std::unordered_map<std::string, TokenType> keyToTokenMap = {
         { "NOT_SET", TokenType::NOT_SET },
@@ -36,7 +76,8 @@ TokenType mapKeyToToken(const std::string& key) {
         { "UNIX_TIME", TokenType::UNIX_TIME },
         { "UNIX_TIME_MS", TokenType::UNIX_TIME_MS },
         { "BLOB", TokenType::BLOB },
-        { "DROP", TokenType::DROP }
+        { "DROP", TokenType::DROP },
+        { "VALUES", TokenType::VALUES }
     };
 
     auto it = keyToTokenMap.find(key);
@@ -46,6 +87,7 @@ TokenType mapKeyToToken(const std::string& key) {
         return TokenType::LABEL;
     }
 }
+
 
 void iterate_through_request(const json::json& j, std::unique_ptr<Token>& t) {
     std::vector<std::unique_ptr<Token>> tokens;
@@ -116,8 +158,9 @@ void iterate_through_request(const json::json& j, std::unique_ptr<Token>& t) {
         tokens.push_back(std::move(token));
     }
 
-    t->child = std::move(tokens);
+    t->children = std::move(tokens);
 }
+
 
 std::unique_ptr<Token> tokenize(const json::json& j) {
     std::unique_ptr<Token> token = std::make_unique<Token>();
@@ -126,6 +169,7 @@ std::unique_ptr<Token> tokenize(const json::json& j) {
 
     return token;
 }
+
 
 std::string tokenTypeToString(TokenType type) {
     static std::unordered_map<TokenType, std::string> tokenTypeToStringMap = {
@@ -168,7 +212,8 @@ std::string tokenTypeToString(TokenType type) {
         { TokenType::UNIX_TIME, "UNIX_TIME" },
         { TokenType::UNIX_TIME_MS, "UNIX_TIME_MS" },
         { TokenType::BLOB, "BLOB" },
-        { TokenType::DROP, "DROP" }
+        { TokenType::DROP, "DROP" },
+        { TokenType::VALUES, "VALUES" }
     };
 
     auto it = tokenTypeToStringMap.find(type);
@@ -178,6 +223,7 @@ std::string tokenTypeToString(TokenType type) {
         return "UNKNOWN";
     }
 }
+
 
 std::string print_token(const Token& t, int depth) {
     std::ostringstream oss;
@@ -194,8 +240,8 @@ std::string print_token(const Token& t, int depth) {
         oss << " " << (*t.value_boolean ? "true" : "false");
     }
 
-    if (t.child.has_value()) {
-        for (const auto& child : t.child.value()) {
+    if (t.children.has_value()) {
+        for (const auto& child : t.children.value()) {
             oss << "\n" << print_token(*child, depth + 1);
         }
     }

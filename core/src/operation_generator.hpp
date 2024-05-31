@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <variant>
 #include "log.hpp"
 #include "tokenizer.hpp"
 #include "metadata_handler.hpp"
@@ -97,6 +98,30 @@ public:
     std::string resolve() override;
 };
 
+/// @brief row definition with possible data_types
+using Row = std::vector<std::variant<bool, double, std::string, uint64_t>>;
+
+/// @brief select operation class
+class InsertOperation : public Operation {
+public:
+    Table table;
+    std::vector<Row> rows;
+    
+    InsertOperation();
+    ~InsertOperation() = default;
+
+    std::string resolve() override;
+};
+
+/// @brief visitor to acces each possible element in row
+class VisitInsertRowItem {
+public:
+    void operator()(bool& value);
+    void operator()(double& value);
+    void operator()(std::string& value);
+    void operator()(uint64_t& value);
+};
+
 /// @brief function which converts tokens tree to operation classes
 /// @param token root token of token tree
 /// @return pointer to Operation object
@@ -139,6 +164,8 @@ Column create_column(std::unique_ptr<Token>& token);
 /// @brief function which retrieves data type from token
 /// @param token with data type
 /// @return selected data type
+/// @throws OperationException: Element does not have body with data type.
+/// @throws OperationException: Element with data type must have data type only inside.
 DataType get_data_type(std::unique_ptr<Token>& token);
 
 /// @brief function which converts atributes token to vector of column atributes
@@ -162,7 +189,7 @@ ColumnAttributes get_column_attribute(std::unique_ptr<Token>& token);
 std::string get_label_string(std::unique_ptr<Token>& token);
 
 /// @brief function which converts drop token to drop operation class
-/// @param token create token
+/// @param token drop token
 /// @return pointer to DropOperation object
 /// @throws OperationException: Drop statement is empty.
 /// @throws OperationException: Only one element must be in Drop statement.
@@ -173,3 +200,25 @@ std::unique_ptr<DropOperation> generate_drop_operation(std::unique_ptr<Token>& t
 /// @return pointer to DropTableOperation object
 /// @throws OperationException: Drop table body is missing.
 std::unique_ptr<DropTableOperation> generate_drop_table_operation(std::unique_ptr<Token>& token);
+
+/// @brief function which converts insert token to insert operation class
+/// @param token insert token
+/// @return pointer to InsertOperation object
+/// @throws OperationException: Insert body is missing.
+/// @throws OperationException: Insert querry is missing table name.
+/// @throws OperationException: Insert querry is missing values to insert.
+/// @throws OperationException: Insert querry has unwanted objects.
+std::unique_ptr<InsertOperation> generate_insert_operation(std::unique_ptr<Token>& token);
+
+/// @brief function which converts column token to vector of column objects
+/// @param token array element - row token
+/// @return row
+/// @throws OperationException: 
+Row get_row(std::unique_ptr<Token>& token);
+
+/// @brief function which converts row values token to vector of row objects
+/// @param token rows token
+/// @return vector of rows
+/// @throws OperationException: No row definitions provided.
+/// @throws OperationException: Row values definitions must be in array.
+std::vector<Row> get_rows(std::unique_ptr<Token>& token);

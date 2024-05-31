@@ -89,9 +89,3 @@ public:
     /// @return Table object
     static Table fromJson(const json::json& j);
 };
-
-
-/// @brief function to convert ColumnAttributes to string
-/// @param ca collumn attribute
-/// @return string representation of ColumnAttributes
-std::string ColumnAttributes_to_string(const ColumnAttributes& ca);

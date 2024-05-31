@@ -51,7 +51,8 @@ enum class TokenType {
     UNIX_TIME,
     UNIX_TIME_MS,
     BLOB,
-    DROP
+    DROP,
+    VALUES
 };
 
 class Token {
@@ -60,7 +61,21 @@ public:
     std::optional<std::string> label;
     std::optional<double> value_number;
     std::optional<bool> value_boolean;
-    std::optional<std::vector<std::unique_ptr<Token>>> child;
+    std::optional<std::vector<std::unique_ptr<Token>>> children;
+
+    /// @brief Function which ckecks if one of child type is wanted type
+    /// @param type wanted type
+    /// @return true if child with proper type is found, false if not found
+    bool has_child(TokenType type);
+
+    /// @brief Function which returns child with wanted type
+    /// @param type wanted type
+    /// @return found child or nullptr when did not found child with proper type
+    std::unique_ptr<Token> get_child(TokenType type);
+
+    /// @brief Function which tells how many children does token has
+    /// @return number of childred of token, or -1 when children are not present
+    int get_children_number();
 };
 
 /// @brief function to map key to token
