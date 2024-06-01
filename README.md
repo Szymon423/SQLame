@@ -95,6 +95,8 @@ Projects\
 
 ## TODO
  - [x] resolve DROP TABLE querry
- - [x] resolve CREATE TABLE querry
+ - [ ] resolve CREATE TABLE querry
+    * [x] check not null values
+    * [ ] check unique values
  - [x] resolve INSERT VALUES querry
  - [ ] resolve SELECT querry
