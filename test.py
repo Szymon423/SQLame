@@ -124,7 +124,23 @@ def test_insert():
     assert response.status_code == 200
     print(f"Response Body: {response.text}")
     data = response.json()
-    assert data["message"] == "Inserted values into table 'MY_TABLE'."
+    assert data["message"] == "Inserted 2 values into table 'MY_TABLE'."
+
+def test_insert_2():
+    response = requests.post(f"{BASE_URL}", json=insert_table_2)
+    print(f"Status Code: {response.status_code}")
+    assert response.status_code == 200
+    print(f"Response Body: {response.text}")
+    data = response.json()
+    assert data["message"] == "Inserted 2 values into table 'MY_TABLE'."
+
+def test_insert_3():
+    response = requests.post(f"{BASE_URL}", json=insert_table_2)
+    print(f"Status Code: {response.status_code}")
+    assert response.status_code == 200
+    print(f"Response Body: {response.text}")
+    data = response.json()
+    assert data["message"] == "Inserted 2 values into table 'MY_TABLE'."
 
 def test_drop_table_exist():
     response = requests.post(f"{BASE_URL}", json=drop_table_2)

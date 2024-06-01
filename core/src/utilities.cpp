@@ -48,3 +48,33 @@ void save_to_file(const std::vector<uint8_t>& byte_vector, const fs::path& path)
 
     output_file.close();
 }
+
+
+void append_to_file(const std::vector<uint8_t>& byte_vector, const fs::path& path) {
+    if (!check_path_exist(path)) {
+        try {
+            save_to_file(byte_vector, path);
+            return;
+        }
+        catch(UtilitiesException& e) {
+            throw UtilitiesException(e.what());
+        }
+    }
+
+    try {
+        std::ofstream output_file(path, std::ios::binary | std::ios::app);
+        if (!output_file) {
+            throw UtilitiesException("Unable to open file for appending: " + path.string());
+        }
+
+        output_file.write(reinterpret_cast<const char*>(byte_vector.data()), byte_vector.size());
+        if (!output_file) {
+            throw UtilitiesException("Unable to write to file: " + path.string());
+        }
+
+        output_file.close();
+    }
+    catch (UtilitiesException& e) {
+        throw UtilitiesException(e.what());
+    }
+}

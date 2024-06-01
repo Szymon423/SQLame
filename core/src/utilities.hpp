@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include "log.hpp"
+#include "directory_management.hpp"
 
 
 namespace json = nlohmann;
@@ -39,3 +40,9 @@ json::json load_json_from_file(const fs::path& path);
 /// @param byte_vector vector containing bytes
 /// @param path path under which files will be saved
 void save_to_file(const std::vector<uint8_t>& byte_vector, const fs::path& path);
+
+
+/// @brief Function which appends vector of bytes to end of the file
+/// @param byte_vector vector containing bytes
+/// @param path path under which files will be saved
+void append_to_file(const std::vector<uint8_t>& byte_vector, const fs::path& path);

@@ -96,15 +96,15 @@ std::string InsertOperation::resolve() {
         }
     }
     try {
-        save_to_file(byte_vector, Configuration::base_path() / fs::path{ "data/tables/" + table.name + ".db" });
+        append_to_file(byte_vector, Configuration::base_path() / fs::path{ "data/tables/" + table.name + ".db" });
     }
     catch(UtilitiesException& e) {
         LOG_ERROR("Insert values into table '{}' failed becouse of '{}'.", table.name, e.what());
         return "Insert values into table '" + table.name + "' failed becouse of '" + e.what() + "'.";
     }
     
-    LOG_TRACE("Inserted values into table '{}'.", table.name);
-    return "Inserted values into table '" + table.name + "'.";
+    LOG_TRACE("Inserted {} values into table '{}'.", rows.size(), table.name);
+    return "Inserted " + std::to_string(rows.size()) + " values into table '" + table.name + "'.";
 }
 
 
@@ -341,6 +341,7 @@ TokenType token_type_from_data_type(DataType dt) {
         case DataType::BLOB: return TokenType::BLOB;
         case DataType::NOT_FOUND: return TokenType::UNKNOWN;
     }
+    return TokenType::UNKNOWN;
 }
 
 
