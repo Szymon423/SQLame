@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <variant>
 #include <optional>
 #include <vector>
 #include <nlohmann/json.hpp>
@@ -89,4 +90,52 @@ public:
     /// @param j Refference to json object
     /// @return Table object
     static Table fromJson(const json::json& j);
+};
+
+
+/// @brief class which contains information about single row element
+class RowElement {
+public:
+    /// @brief when set to true value is null
+    bool is_null;
+
+    /// @brief holded data type
+    DataType dt;
+
+    /// @brief value in one of types: [bool, double, std::string, uint64_t, int64_t]
+    std::variant<bool, double, std::string, uint64_t, int64_t> value;
+
+    /// @brief Constructor creating not null row element
+    /// @tparam T type of value associated with data type
+    /// @param type data type
+    /// @param val value to put in row element
+    template<typename T>
+    RowElement(DataType type, T val) 
+        : is_null(false), dt(type), value(val) {}
+
+    /// @brief Constructor creating row with null element of data type
+    /// @param type data type
+    RowElement(DataType type);
+
+    /// @brief Function converting row element to bytes
+    /// @return vector of bytes
+    std::vector<uint8_t> to_bytes();
+};
+
+
+/// @brief row definition with possible data_types
+using Row = std::vector<RowElement>;
+
+
+/// @brief Visitor to acces each possible element in row
+class VisitInsertRowItem {
+private:
+    std::vector<uint8_t>& byte_vector;
+public:
+    VisitInsertRowItem(std::vector<uint8_t>& byte_vector);
+    void operator()(bool& value);
+    void operator()(double& value);
+    void operator()(std::string& value);
+    void operator()(uint64_t& value);
+    void operator()(int64_t& value);
 };

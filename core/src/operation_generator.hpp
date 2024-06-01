@@ -1,8 +1,9 @@
 #pragma once
 
-#include <vector>
 #include <string>
+#include <vector>
 #include <variant>
+#include <optional>
 #include "log.hpp"
 #include "tokenizer.hpp"
 #include "metadata_handler.hpp"
@@ -99,8 +100,6 @@ public:
     std::string resolve() override;
 };
 
-/// @brief row definition with possible data_types
-using Row = std::vector<std::variant<bool, double, std::string, uint64_t, int64_t>>;
 
 /// @brief select operation class
 class InsertOperation : public Operation {
@@ -112,19 +111,6 @@ public:
     ~InsertOperation() = default;
 
     std::string resolve() override;
-};
-
-/// @brief visitor to acces each possible element in row
-class VisitInsertRowItem {
-private:
-    std::vector<uint8_t>& byte_vector;
-public:
-    VisitInsertRowItem(std::vector<uint8_t>& byte_vector);
-    void operator()(bool& value);
-    void operator()(double& value);
-    void operator()(std::string& value);
-    void operator()(uint64_t& value);
-    void operator()(int64_t& value);
 };
 
 /// @brief function which converts tokens tree to operation classes
@@ -173,6 +159,11 @@ Column create_column(std::unique_ptr<Token>& token);
 /// @throws OperationException: Element with data type must have data type only inside.
 DataType get_data_type(std::unique_ptr<Token>& token);
 
+/// @brief Function which gets proper token based on data type
+/// @param dt data type
+/// @return token associated with data type
+TokenType token_type_from_data_type(DataType dt);
+
 /// @brief function which converts atributes token to vector of column atributes
 /// @param token atributes token
 /// @return vector of ColumnAttributes
@@ -214,6 +205,11 @@ std::unique_ptr<DropTableOperation> generate_drop_table_operation(std::unique_pt
 /// @throws OperationException: Insert querry is missing values to insert.
 /// @throws OperationException: Insert querry has unwanted objects.
 std::unique_ptr<InsertOperation> generate_insert_operation(std::unique_ptr<Token>& token);
+
+/// @brief Function checking if one of attributes is NOT_NULL
+/// @param atributes vector of attributes
+/// @return True if column can be null, false if column can not be null
+bool check_column_can_be_null(const std::optional<std::vector<ColumnAttributes>>& atributes);
 
 /// @brief function which converts row values token to vector of row objects
 /// @param token rows token

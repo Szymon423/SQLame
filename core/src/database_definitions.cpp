@@ -12,6 +12,7 @@ std::string ColumnAttributes_to_string(const ColumnAttributes& ca) {
     }
 }
 
+
 ColumnAttributes ColumnAttributes_from_string(const std::string& ca) {
     if (ca == "UNIQUE") return ColumnAttributes::UNIQUE;
     if (ca == "PRIMARY_KEY") return ColumnAttributes::PRIMARY_KEY;
@@ -19,6 +20,7 @@ ColumnAttributes ColumnAttributes_from_string(const std::string& ca) {
     if (ca == "NOT_NULL") return ColumnAttributes::NOT_NULL;
     return ColumnAttributes::NOT_FOUND;
 }
+
 
 std::string DataType_to_string(const DataType& dt) {
     switch (dt) {
@@ -34,6 +36,7 @@ std::string DataType_to_string(const DataType& dt) {
     }
 }
 
+
 DataType DataType_from_string(const std::string& dt) {
     if (dt == "INT") return DataType::INT;
     if (dt == "DOUBLE") return DataType::DOUBLE;
@@ -44,6 +47,7 @@ DataType DataType_from_string(const std::string& dt) {
     if (dt == "BLOB") return DataType::BLOB;
     return DataType::NOT_FOUND;
 }
+
 
 json::json Column::toJson() const {
     json::json j;
@@ -58,6 +62,7 @@ json::json Column::toJson() const {
     }
     return j;
 }
+
 
 Column Column::fromJson(const json::json& j) {
     Column c;
@@ -79,6 +84,7 @@ Column Column::fromJson(const json::json& j) {
     return c;
 }
 
+
 json::json Table::toJson() const {
     json::json j;
     j["name"] = name;
@@ -88,6 +94,7 @@ json::json Table::toJson() const {
     }
     return j;
 }
+
 
 Table Table::fromJson(const json::json& j) {
     Table t;
@@ -104,4 +111,65 @@ Table Table::fromJson(const json::json& j) {
         LOG_ERROR("Error parsing JSON to Table: {}", e.what());
     }
     return t;
+}
+
+
+RowElement::RowElement(DataType type) : is_null(true), dt(type) {}
+
+
+std::vector<uint8_t> RowElement::to_bytes() {
+    // bytes for any type are created as shown below
+    // > when value is null: bytes = [0x01]
+    // > when value is not null: bytes = [0x00, <rest of bytes from actuall value>]
+    std::vector<uint8_t> bytes;
+    if (is_null) {
+        bytes.push_back(0x01);
+    }
+    else {
+        bytes.push_back(0x00);
+        std::visit(VisitInsertRowItem(bytes), value);
+    }
+    return bytes;
+}
+
+
+VisitInsertRowItem::VisitInsertRowItem(std::vector<uint8_t>& byte_vector) : byte_vector(byte_vector) {}
+
+
+void VisitInsertRowItem::operator()(bool& value) {
+    byte_vector.push_back(static_cast<uint8_t>(value));
+    // TODO remove log
+    LOG_TRACE(" > bool value: {}", value);
+}
+
+
+void VisitInsertRowItem::operator()(double& value) {
+    uint8_t* ptr = reinterpret_cast<uint8_t*>(&value);
+    byte_vector.insert(byte_vector.end(), ptr, ptr + sizeof(double));
+    // TODO remove log
+    LOG_TRACE(" > double value: {}", value);
+}
+
+
+void VisitInsertRowItem::operator()(std::string& value) {
+    byte_vector.insert(byte_vector.end(), value.begin(), value.end());
+    byte_vector.push_back('\0');
+    // TODO remove log
+    LOG_TRACE(" > std::string value: {}", value);
+}
+
+
+void VisitInsertRowItem::operator()(uint64_t& value) {
+    uint8_t* ptr = reinterpret_cast<uint8_t*>(&value);
+    byte_vector.insert(byte_vector.end(), ptr, ptr + sizeof(uint64_t));
+    // TODO remove log
+    LOG_TRACE(" > uint64_t value: {}", value);
+}
+
+
+void VisitInsertRowItem::operator()(int64_t& value) {
+    uint8_t* ptr = reinterpret_cast<uint8_t*>(&value);
+    byte_vector.insert(byte_vector.end(), ptr, ptr + sizeof(int64_t));
+    // TODO remove log
+    LOG_TRACE(" > int64_t value: {}", value);
 }

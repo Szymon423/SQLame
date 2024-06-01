@@ -6,12 +6,10 @@ OperationException::OperationException(const std::string msg): message(msg) {
 }
 
 
-// const char* OperationException::what() {
-//     return message.c_str();
-// }
 const std::string OperationException::what() {
     return message;
 }
+
 
 CreateOperation::CreateOperation() {
     operation_type = OperationType::CREATE;
@@ -88,12 +86,13 @@ std::string InsertOperation::resolve() {
         return "Table '" + table.name + "' does not exist.";
     }
 
-    // TODO here it must insert values into table_name.db
+    // create vector with bytes to save
     std::vector<uint8_t> byte_vector;
     for (auto& row: rows) {
         LOG_TRACE("Data in row: ");
         for (auto& element: row) {
-            std::visit(VisitInsertRowItem(byte_vector), element);
+            auto bytes = element.to_bytes();
+            byte_vector.insert(byte_vector.end(), bytes.begin(), bytes.end());
         }
     }
     try {
@@ -106,44 +105,6 @@ std::string InsertOperation::resolve() {
     
     LOG_TRACE("Inserted values into table '{}'.", table.name);
     return "Inserted values into table '" + table.name + "'.";
-}
-
-
-VisitInsertRowItem::VisitInsertRowItem(std::vector<uint8_t>& byte_vector) : byte_vector(byte_vector) {
-
-}
-
-void VisitInsertRowItem::operator()(bool& value) {
-    byte_vector.push_back(static_cast<uint8_t>(value));
-    LOG_TRACE(" > bool value: {}", value);
-}
-
-
-void VisitInsertRowItem::operator()(double& value) {
-    uint8_t* ptr = reinterpret_cast<uint8_t*>(&value);
-    byte_vector.insert(byte_vector.end(), ptr, ptr + sizeof(double));
-    LOG_TRACE(" > double value: {}", value);
-}
-
-
-void VisitInsertRowItem::operator()(std::string& value) {
-    byte_vector.insert(byte_vector.end(), value.begin(), value.end());
-    byte_vector.push_back('\0');
-    LOG_TRACE(" > std::string value: {}", value);
-}
-
-
-void VisitInsertRowItem::operator()(uint64_t& value) {
-    uint8_t* ptr = reinterpret_cast<uint8_t*>(&value);
-    byte_vector.insert(byte_vector.end(), ptr, ptr + sizeof(uint64_t));
-    LOG_TRACE(" > uint64_t value: {}", value);
-}
-
-
-void VisitInsertRowItem::operator()(int64_t& value) {
-    uint8_t* ptr = reinterpret_cast<uint8_t*>(&value);
-    byte_vector.insert(byte_vector.end(), ptr, ptr + sizeof(int64_t));
-    LOG_TRACE(" > int64_t value: {}", value);
 }
 
 
@@ -368,6 +329,21 @@ DataType get_data_type(std::unique_ptr<Token>& token) {
 }
 
 
+TokenType token_type_from_data_type(DataType dt) {
+    switch (dt) {
+        case DataType::NUMBER: return TokenType::NUMBER;
+        case DataType::TEXT: return TokenType::TEXT;
+        case DataType::INT: return TokenType::INT;
+        case DataType::DOUBLE: return TokenType::DOUBLE;
+        case DataType::BOOLEAN: return TokenType::BOOLEAN;
+        case DataType::UNIX_TIME: return TokenType::UNIX_TIME;
+        case DataType::UNIX_TIME_MS: return TokenType::UNIX_TIME_MS;
+        case DataType::BLOB: return TokenType::BLOB;
+        case DataType::NOT_FOUND: return TokenType::UNKNOWN;
+    }
+}
+
+
 std::vector<ColumnAttributes> get_column_attributes(std::unique_ptr<Token>& token) {
     if (!token->children.has_value()) {
         throw OperationException("Column attributes definition with empty body."); 
@@ -536,6 +512,21 @@ std::unique_ptr<InsertOperation> generate_insert_operation(std::unique_ptr<Token
 }
 
 
+bool check_column_can_be_null(const std::optional<std::vector<ColumnAttributes>>& atributes) {
+    if (!atributes.has_value()) {
+        return true;
+    }
+
+    for (auto& atr: atributes.value()) {
+        if (atr == ColumnAttributes::NOT_NULL) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
 std::vector<Row> get_rows(std::unique_ptr<Token>& token, const std::vector<Column>& columns) {
     if (!token->children.has_value()) {
         throw OperationException("No row definitions provided."); 
@@ -566,76 +557,80 @@ Row get_row(std::unique_ptr<Token>& token, const std::vector<Column>& columns) {
 
     Row row;
     auto& row_elements = token->children.value();
-    for (auto& element: row_elements) {
-        if (element->type != TokenType::LABEL) {
-            throw OperationException("Not allowed element in row.");
-        }
-
-        if (!element->label.has_value()) {
-            throw OperationException("Column label is missing.");
-        }
-
-        if (!element->children.has_value()) {
-            throw OperationException("No value associated with column name.");
-        }
-
-        if (element->get_children_number() != 1) {
-            throw OperationException("Only one value can be associated with column name.");
-        }
-
-        std::string column_name = element->label.value();
-
-        DataType column_dt = DataType::NOT_FOUND;
-        for (auto& col: columns) {
-            if (column_name == col.name) {
-                column_dt = col.data_type;
-                break;
+    for (auto& col: columns) {
+        bool found_column_val = false;
+        for (auto& element: row_elements) {
+            if (element->type != TokenType::LABEL) {
+                throw OperationException("Not allowed element in row.");
             }
-        }
 
-        // TODO here resolve TokenType::NUMBER 
-        if (column_dt == DataType::NOT_FOUND) {
-            throw OperationException("Could not find column with provided name.");
-        }
+            if (!element->label.has_value()) {
+                throw OperationException("Column label is missing.");
+            }
 
-        auto& child = element->children.value().at(0);
-        switch (column_dt) {
-            case DataType::BOOLEAN: {
-                if (!child->value_boolean.has_value()) {
-                    throw OperationException("Data type (BOOLEAN) of column '" + column_name + "' does not match witch provided data type.");
+            if (!element->children.has_value()) {
+                throw OperationException("No value associated with column name '" + col.name + "'.");
+            }
+
+            if (element->get_children_number() != 1) {
+                throw OperationException("Only one value can be associated with column name '" + col.name + "'.");
+            }
+
+            std::string column_name = element->label.value();
+
+            if (column_name != col.name) {
+                continue;
+            }
+            found_column_val = true;
+
+            // when value was not found check if collumn can be null
+            if (!found_column_val) {
+                if (!check_column_can_be_null(col.attributes)) {
+                    throw OperationException("Column '" + col.name + "' is can not be null.");
                 }
-                row.push_back(child->value_boolean.value());
-                break;
+                row.emplace_back(col.data_type);
+                continue;
             }
-            case DataType::DOUBLE: {
-                if (!child->value_double.has_value()) {
-                    throw OperationException("Data type (DOUBLE) of column '" + column_name + "' does not match witch provided data type.");
+
+            auto& child = element->children.value().at(0);
+            switch (col.data_type) {
+                case DataType::BOOLEAN: {
+                    if (!child->value_boolean.has_value()) {
+                        throw OperationException("Data type (BOOLEAN) of column '" + col.name + "' does not match witch provided data type.");
+                    }
+                    row.emplace_back(DataType::BOOLEAN, child->value_boolean.value());
+                    break;
                 }
-                row.push_back(child->value_double.value());
-                break;
-            }
-            case DataType::TEXT: {
-                if (!child->label.has_value()) {
-                    throw OperationException("Data type (TEXT) of column '" + column_name + "' does not match witch provided data type.");
+                case DataType::DOUBLE: {
+                    if (!child->value_double.has_value()) {
+                        throw OperationException("Data type (DOUBLE) of column '" + col.name + "' does not match witch provided data type.");
+                    }
+                    row.emplace_back(DataType::DOUBLE, child->value_double.value());
+                    break;
                 }
-                row.push_back(child->label.value());
-                break;
-            }
-            case DataType::INT: {
-                if (!child->value_int.has_value()) {
-                    throw OperationException("Data type (INT) of column '" + column_name + "' does not match witch provided data type.");
+                case DataType::TEXT: {
+                    if (!child->label.has_value()) {
+                        throw OperationException("Data type (TEXT) of column '" + col.name + "' does not match witch provided data type.");
+                    }
+                    row.emplace_back(DataType::TEXT, child->label.value());
+                    break;
                 }
-                row.push_back(child->value_int.value());
-                break;
-            }
-            case DataType::UNIX_TIME: {
-                if (!child->value_unix_time.has_value()) {
-                    throw OperationException("Data type (INT) of column '" + column_name + "' does not match witch provided data type.");
+                case DataType::INT: {
+                    if (!child->value_int.has_value()) {
+                        throw OperationException("Data type (INT) of column '" + col.name + "' does not match witch provided data type.");
+                    }
+                    row.emplace_back(DataType::INT, child->value_int.value());
+                    break;
                 }
-                row.push_back(child->value_unix_time.value());
-                break;
+                case DataType::UNIX_TIME: {
+                    if (!child->value_unix_time.has_value()) {
+                        throw OperationException("Data type (INT) of column '" + col.name + "' does not match witch provided data type.");
+                    }
+                    row.emplace_back(DataType::UNIX_TIME, child->value_unix_time.value());
+                    break;
+                }
+                // TODO add not listed above datatypes
             }
-            // TODO add not listed above datatypes
         }
     }
     
