@@ -94,9 +94,11 @@ Projects\
 
 
 ## TODO
- - [x] resolve DROP TABLE querry
- - [ ] resolve CREATE TABLE querry
+ - [x] resolve CREATE TABLE querry
+ - [ ] resolve DROP TABLE querry
+    * [ ] delete also table data
+ - [x] resolve INSERT VALUES querry
     * [x] check not null values
     * [ ] check unique values
- - [x] resolve INSERT VALUES querry
+    * [ ] use of autoincrement
  - [ ] resolve SELECT querry
