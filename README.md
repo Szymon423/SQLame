@@ -94,7 +94,7 @@ Projects\
 
 
 ## TODO
-[x] resolve DROP TABLE querry
-[x] resolve CREATE TABLE querry
-[x] resolve INSERT VALUES querry
-[ ] resolve SELECT querry
+ - [x] resolve DROP TABLE querry
+ - [x] resolve CREATE TABLE querry
+ - [x] resolve INSERT VALUES querry
+ - [ ] resolve SELECT querry
