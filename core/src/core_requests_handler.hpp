@@ -19,3 +19,9 @@ public:
     /// @return processed data
     std::string handleRequest(const std::string& request) override;
 };
+
+/// @brief Resoult codes for request resolving
+enum class ResoultCode {
+    OK,     // everything went ok
+    BAD     // something wen wrong
+};

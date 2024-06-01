@@ -16,7 +16,6 @@ private:
 
 public:
     OperationException(const std::string msg);
-    // const char* what ();
     const std::string what ();
 };
 
