@@ -91,3 +91,10 @@ Projects\
 ├── SQLame\
 ├── vcpkg\
 ```
+
+
+## TODO
+[x] resolve DROP TABLE querry
+[x] resolve CREATE TABLE querry
+[x] resolve INSERT VALUES querry
+[ ] resolve SELECT querry
