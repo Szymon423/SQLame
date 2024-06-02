@@ -1,3 +1,4 @@
+![SQLame logo](../../img/logo.png)
 # SQLame documentation
 
 ## Project description
@@ -68,6 +69,27 @@ Main idea is to create database engine which allows to store data. But worse.
     }
 }
 ```
+
+## Tokenization
+
+Let look at select querry example as shown below.
+
+```json
+{
+    "SELECT": {
+        "WHAT": ["name", "valid", "value"],
+        "FROM": "my_table",
+        "WHERE": {
+            "id": {
+                "=": 123
+            }
+        }
+    }
+}
+```
+This JSON is converted into Tokens tree.
+
+![SQLame tokenization](../../img/tokenization.png)
 
 
 ## Commands
