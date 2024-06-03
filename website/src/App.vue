@@ -1,30 +1,32 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <div class="screen-container">
+    <SidebarComponent />
+    <div class="flex-1 p-4">
+      <router-view />
+    </div>
+  </div>
 </template>
 
+<script lang="ts">
+import { defineComponent } from 'vue'
+import SidebarComponent from './components/SidebarComponent.vue'
+
+export default defineComponent({
+  name: 'App',
+  components: {
+    SidebarComponent
+  }
+})
+</script>
+
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
+.screen-container {
+  display: grid;
+  grid-template-columns: 1fr 6fr;
 }
 </style>

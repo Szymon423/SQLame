@@ -22,3 +22,12 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### Dependencies
+```sh
+npm install -D tailwindcss postcss autoprefixer
+```
+
+```sh
+npx tailwindcss init -p
+```

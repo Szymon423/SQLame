@@ -1,14 +1,14 @@
 <template>
-  <div>
-      <h1>About</h1>
-  </div>
+    <div>
+        <h1>Configuration</h1>
+    </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'AboutView'
+    name: 'ConfigurationView'
 })
 </script>
 
