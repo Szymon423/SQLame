@@ -1,7 +1,7 @@
 {
     "server_port": 9191,
-    "_base_path": "/mnt/c/Projects/SQLame/test/",
-    "base_path": "/mnt/c/Users/szymo/Projects/SQLame/test/",
+    "base_path": "/mnt/c/Projects/SQLame/test/",
+    "_base_path": "/mnt/c/Users/szymo/Projects/SQLame/test/",
     "directories": {
         "data": {
             "metadata": {

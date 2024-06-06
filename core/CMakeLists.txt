@@ -16,7 +16,7 @@ project(compression_encryption LANGUAGES CXX)
 # Znajdź pakiet nlohmann_json
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
-find_package(Poco REQUIRED COMPONENTS Util Net NetSSL Crypto)
+find_package(Poco REQUIRED COMPONENTS Util Net NetSSL Crypto JWT)
 
 # Dodanie katalogu źródłowego
 add_subdirectory(src)
@@ -42,6 +42,7 @@ target_link_libraries(SQLame
 	Poco::NetSSL
 	Poco::Crypto
 	Poco::Util
+	Poco::JWT
     ${COMMUNICATION_LIB}
 )
 

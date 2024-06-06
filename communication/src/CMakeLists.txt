@@ -16,4 +16,5 @@ target_link_libraries(communication
 	Poco::NetSSL
 	Poco::Crypto
 	Poco::Util
+	Poco::JWT
 )

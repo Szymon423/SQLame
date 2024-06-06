@@ -11,7 +11,7 @@ endif()
 
 project(communication LANGUAGES CXX)
 
-find_package(Poco REQUIRED COMPONENTS Util Net NetSSL Crypto)
+find_package(Poco REQUIRED COMPONENTS Util Net NetSSL Crypto JWT)
 
 # Dodanie katalogu źródłowego
 add_subdirectory(src)
