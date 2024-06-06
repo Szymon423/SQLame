@@ -5,6 +5,7 @@ QuerryRequestHandler::QuerryRequestHandler(IRequestHandler* handler)
     : _handler(handler) {}
 
 
+// TODO here Token must be validated and user id retrieved from it
 void QuerryRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response) {
     std::istream& inStream = request.stream();
     std::string requestBody(std::istreambuf_iterator<char>(inStream), {});
@@ -34,7 +35,8 @@ void AuthorisationRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
     std::string login = request.get("login");
     std::string password = request.get("password");
 
-    if (!authenticate(login, password)) {
+    int user_id = authenticate(login, password);
+    if (user_id == -1) {
         response.setStatus(Poco::Net::HTTPResponse::HTTP_UNAUTHORIZED);
         std::ostream& out = response.send();
         out << "{\"error\": \"Authentication faliure.\"}";
@@ -44,7 +46,9 @@ void AuthorisationRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
     Poco::JWT::Token token;
     token.setType("JWT");
     token.setSubject("1234567890");
-    token.payload().set("name", std::string("John Doe"));
+
+    // set inside of token information about logged user id
+    token.payload().set("uid", std::to_string(user_id));
     token.setIssuedAt(Poco::Timestamp());
 
     Poco::JWT::Signer signer("0123456789ABCDEF0123456789ABCDEF");
