@@ -1,9 +1,10 @@
 #pragma once
 
-#include <string>
-#include <optional>
-#include <vector>
 #include <nlohmann/json.hpp>
+#include <optional>
+#include <string>
+#include <vector>
+#include "utilities.hpp"
 
 namespace json = nlohmann;
 

@@ -1,5 +1,6 @@
 #include "authentication.hpp"
 
+
 json::json Permissions::toJson() const {
     json::json j;
     j["create_table"] = create_table;
@@ -8,6 +9,7 @@ json::json Permissions::toJson() const {
     j["select_from_table"] = select_from_table;
     return j;
 }
+
 
 Permissions Permissions::fromJson(const json::json& j) {
     Permissions p;
@@ -45,6 +47,7 @@ Permissions Permissions::fromJson(const json::json& j) {
     return p;
 }
 
+
 json::json User::toJson() const {
     json::json j;
     j["id"] = id;
@@ -56,6 +59,7 @@ json::json User::toJson() const {
     }
     return j;
 }
+
 
 User User::fromJson(const json::json& j) {
     User u;
@@ -79,20 +83,16 @@ User User::fromJson(const json::json& j) {
 
 std::vector<User> load_users() {
     std::vector<User> users;
-
-    // TODO fix path
-    std::ifstream file();
-    if (!file.is_open()) {
-        // throw UtilitiesException("Unable to open file for reading: " + path.string());
+    json::json j;
+    try {
+        j = load_json_from_file(Configuration::base_path() / fs::path{ "data/metadata/users/users.meta" });
+    }
+    catch (UtilitiesException& e) {
+        LOG_ERROR("Could not load users metadata file becouse of: {}", e.what());
         return users;
     }
 
-    json::json j;
-    file >> j;
-    file.close();
-
     if (!j.is_array()) {
-        // TODO maybe throw error here
         return users;
     }
 
@@ -105,11 +105,14 @@ std::vector<User> load_users() {
 
 
 int authenticate(const std::string& login, const std::string& password) {
+    LOG_TRACE("Authentication handling: User '{}', Password: '{}'", login, password);
     auto users = load_users();
     for (const auto& u: users) {
         if (u.login == login && u.password == password) {
+            LOG_TRACE("User authorised.");
             return u.id;
         }
     }
+    LOG_TRACE("User not authorised.");
     return -1;
 }

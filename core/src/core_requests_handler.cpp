@@ -1,5 +1,12 @@
 #include "core_requests_handler.hpp"
 #include <nlohmann/json.hpp>
+#include "authentication.hpp"
+
+
+int CoreAuthorisationHandler::handle_authorisation(const std::string& login, const std::string& password) {
+    return authenticate(login, password);
+}
+
 
 std::string CoreRequestHandler::handleRequest(const std::string& request) {
 

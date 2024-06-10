@@ -18,8 +18,9 @@ int main() {
     Configuration::load_configuration(configuration_path);
     validate_system_directories(configuration_path);
 
-    CoreRequestHandler coreHandler;
-    CommunicationServer server(&coreHandler, 9443);
+    CoreRequestHandler request_handler;
+    CoreAuthorisationHandler authorisation_handler;
+    CommunicationServer server(&authorisation_handler, &request_handler, 9443);
 
     server.start();
     LOG_TRACE("Started communication server.");

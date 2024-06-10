@@ -19,6 +19,10 @@ void QuerryRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, 
 }
 
 
+AuthorisationRequestHandler::AuthorisationRequestHandler(IAuthorisationHandler* handler) 
+    : _handler(handler) {}
+
+
 void AuthorisationRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response) {
     std::istream& inStream = request.stream();
     std::string requestBody(std::istreambuf_iterator<char>(inStream), {});
@@ -35,7 +39,7 @@ void AuthorisationRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
     std::string login = request.get("login");
     std::string password = request.get("password");
 
-    int user_id = authenticate(login, password);
+    int user_id = _handler->handle_authorisation(login, password);
     if (user_id == -1) {
         response.setStatus(Poco::Net::HTTPResponse::HTTP_UNAUTHORIZED);
         std::ostream& out = response.send();
@@ -73,28 +77,27 @@ void UndefiniedRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& reque
 }
 
 
-RequestHandlerFactory::RequestHandlerFactory(IRequestHandler* handler)
-    : _handler(handler) {}
+RequestHandlerFactory::RequestHandlerFactory(IAuthorisationHandler* auth_handler, IRequestHandler* request_handler)
+    : _auth_handler(auth_handler), _request_handler(request_handler) {}
 
 
 Poco::Net::HTTPRequestHandler* RequestHandlerFactory::createRequestHandler(const Poco::Net::HTTPServerRequest& request) {
     const std::string& uri = request.getURI();
 
     if (uri == "/authorisation") {
-        return new AuthorisationRequestHandler;
+        return new AuthorisationRequestHandler(_auth_handler);
     }
     if (uri == "/request") {
-        return new QuerryRequestHandler(_handler);
+        return new QuerryRequestHandler(_request_handler);
     }
     return new UndefiniedRequestHandler;
 }
 
 
-CommunicationServer::Impl::Impl(IRequestHandler* handler, unsigned short port) {
+CommunicationServer::Impl::Impl(IAuthorisationHandler* auth_handler, IRequestHandler* request_handler, unsigned short port) {
     Poco::Net::ServerSocket svs(port);
     Poco::Net::HTTPServerParams* pParams = new Poco::Net::HTTPServerParams;
-
-    server = new Poco::Net::HTTPServer(new RequestHandlerFactory(handler), svs, pParams);
+    server = new Poco::Net::HTTPServer(new RequestHandlerFactory(auth_handler, request_handler), svs, pParams);
 }
 
 
@@ -113,8 +116,8 @@ void CommunicationServer::Impl::stop() {
 }
 
 
-CommunicationServer::CommunicationServer(IRequestHandler* handler, unsigned short port)
-    : pImpl(new Impl(handler, port))
+CommunicationServer::CommunicationServer(IAuthorisationHandler* auth_handler, IRequestHandler* request_handler, unsigned short port)
+    : pImpl(new Impl(auth_handler, request_handler, port))
 {}
 
 CommunicationServer::~CommunicationServer() = default;

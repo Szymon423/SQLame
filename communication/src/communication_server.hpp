@@ -10,7 +10,6 @@
 #include <Poco/JWT/Signer.h>
 #include <iostream>
 #include <memory>
-#include "authentication.hpp"
 
 /// @brief class for handling querries to SQLame engine
 class QuerryRequestHandler : public Poco::Net::HTTPRequestHandler {
@@ -34,12 +33,16 @@ private:
 class AuthorisationRequestHandler : public Poco::Net::HTTPRequestHandler {
 public:
     /// @brief default constructor
-    AuthorisationRequestHandler() = default;
+    AuthorisationRequestHandler(IAuthorisationHandler* _handler);
 
     /// @brief function which actually handles authorisation request
     /// @param request request object
     /// @param response response object
     void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response) override;
+
+private:
+    /// @brief authorisation handler interface element
+    IAuthorisationHandler* _handler;
 };
 
 
@@ -58,12 +61,13 @@ public:
 
 class RequestHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory {
 public:
-    RequestHandlerFactory(IRequestHandler* handler);
+    RequestHandlerFactory(IAuthorisationHandler* auth_handler, IRequestHandler* request_handler);
 
     Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest& request) override;
 
 private:
-    IRequestHandler* _handler;
+    IAuthorisationHandler* _auth_handler;
+    IRequestHandler* _request_handler;
 };
 
 
@@ -73,7 +77,7 @@ public:
     /// @brief constructor
     /// @param handler object responsible for handling requests processing
     /// @param port port for communication
-    CommunicationServer(IRequestHandler* handler, unsigned short port);
+    CommunicationServer(IAuthorisationHandler* auth_handler, IRequestHandler* request_handler, unsigned short port);
 
     /// @brief destructor
     ~CommunicationServer();
@@ -87,7 +91,7 @@ public:
 private:
     class Impl {
     public:
-        Impl(IRequestHandler* handler, unsigned short port);
+        Impl(IAuthorisationHandler* auth_handler, IRequestHandler* request_handler, unsigned short port);
         ~Impl();
         void start();
         void stop();
