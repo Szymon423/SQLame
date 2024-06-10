@@ -11,6 +11,16 @@
 #include <iostream>
 #include <memory>
 
+#define TOKEN_SIGNER "0123456789ABCDEF0123456789ABCDEF"
+
+
+/// @brief function which validates JWT token and retrieves user ID
+/// @param token actuall token string
+/// @param userId retrieved user ID
+/// @return true if validation ok, false if something went wrong
+bool validate_JWT(const std::string& token, int& userId);
+
+
 /// @brief class for handling querries to SQLame engine
 class QuerryRequestHandler : public Poco::Net::HTTPRequestHandler {
 public:

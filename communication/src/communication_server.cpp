@@ -1,16 +1,52 @@
 #include "communication_server.hpp"
 
 
+bool validate_JWT(const std::string& token, int& userId) {
+    try {
+        Poco::JWT::Token t;
+        Poco::JWT::Signer signer(TOKEN_SIGNER);
+
+        t = signer.verify(token);
+
+        if (t.payload().has("uid")) {
+            userId = t.payload().get("uid").convert<int>();
+            return true;
+        }
+    } catch (const Poco::Exception& e) {
+        return false;
+    }
+    return false;
+}
+
+
 QuerryRequestHandler::QuerryRequestHandler(IRequestHandler* handler) 
     : _handler(handler) {}
 
 
-// TODO here Token must be validated and user id retrieved from it
 void QuerryRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response) {
+    std::string authHeader = request.get("Authorization", "");
+
+    if (authHeader.empty() || authHeader.find("Bearer ") != 0) {
+        response.setStatus(Poco::Net::HTTPResponse::HTTP_UNAUTHORIZED);
+        response.setContentType("application/json");
+        std::ostream& out = response.send();
+        out << "{\"error\":\"Unauthorized\"}";
+        return;
+    }
+
+    int userId;
+    std::string token = authHeader.substr(7);
+    if (!validate_JWT(token, userId)) {
+        response.setStatus(Poco::Net::HTTPResponse::HTTP_UNAUTHORIZED);
+        response.setContentType("application/json");
+        std::ostream& out = response.send();
+        out << "{\"error\":\"Invalid token\"}";
+        return;
+    }
+
     std::istream& inStream = request.stream();
     std::string requestBody(std::istreambuf_iterator<char>(inStream), {});
-    
-    std::string responseBody = _handler->handleRequest(requestBody);
+    std::string responseBody = _handler->handleRequest(requestBody, userId);
 
     response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
     response.setContentType("application/json");
@@ -55,7 +91,7 @@ void AuthorisationRequestHandler::handleRequest(Poco::Net::HTTPServerRequest& re
     token.payload().set("uid", std::to_string(user_id));
     token.setIssuedAt(Poco::Timestamp());
 
-    Poco::JWT::Signer signer("0123456789ABCDEF0123456789ABCDEF");
+    Poco::JWT::Signer signer(TOKEN_SIGNER);
     std::string jwt = signer.sign(token, Poco::JWT::Signer::ALGO_HS256);
 
     response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);

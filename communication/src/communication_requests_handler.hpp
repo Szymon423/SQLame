@@ -23,5 +23,5 @@ public:
     /// @brief function interface which has to be overwritten
     /// @param request request string recieved by server
     /// @return processed data
-    virtual std::string handleRequest(const std::string& request) = 0;
+    virtual std::string handleRequest(const std::string& request, const int& uID) = 0;
 };

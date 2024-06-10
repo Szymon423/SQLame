@@ -8,12 +8,12 @@ int CoreAuthorisationHandler::handle_authorisation(const std::string& login, con
 }
 
 
-std::string CoreRequestHandler::handleRequest(const std::string& request) {
+std::string CoreRequestHandler::handleRequest(const std::string& request, const int& userId) {
 
     json::json j = json::json::parse(request);
 
     auto token = tokenize(j);
-
+    LOG_TRACE("User with ID: {} querried:", userId);
     LOG_TRACE("{}", print_token(*token));
 
     std::unique_ptr<Operation> operation = nullptr;

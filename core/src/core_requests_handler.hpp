@@ -27,8 +27,9 @@ class CoreRequestHandler : public IRequestHandler {
 public:
     /// @brief overriden function to handle requests
     /// @param request incoming request
+    /// @param userId ID of user who is associated with token
     /// @return processed data
-    std::string handleRequest(const std::string& request) override;
+    std::string handleRequest(const std::string& request, const int& userId) override;
 };
 
 
